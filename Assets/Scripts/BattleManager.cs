@@ -450,18 +450,18 @@ public class BattleManager : MonoBehaviour, IListener
                         break;
                     case 7: // LEFT, DOWN
                         retX = (posX - 1 >= MIN_WIDTH) ? (posX - 1) : -1;
-                        retY = (posY - 1 <= MIN_HEIGHT) ? (posY - 1) : -1;
+                        retY = (posY - 1 >= MIN_HEIGHT) ? (posY - 1) : -1;
                         break;
                     case 8: // DOWN
-                        retY = (posY - 1 <= MIN_HEIGHT) ? (posY - 1) : -1;
+                        retY = (posY - 1 >= MIN_HEIGHT) ? (posY - 1) : -1;
                         break;
                     case 9: // RIGHT, DOWN
                         retX = (posX + 1 <= MAX_WIDTH) ? (posX + 1) : -1;
-                        retY = (posY - 1 <= MIN_HEIGHT) ? (posY - 1) : -1;
+                        retY = (posY - 1 >= MIN_HEIGHT) ? (posY - 1) : -1;
                         break;
                 }
 
-                if ((retX < 0) || (retY < 0)) // Invalid range
+                if ((retX < 1) || (retY < 1)) // Invalid range
                     continue;
 
                 int[] retPos = { retX, retY };
