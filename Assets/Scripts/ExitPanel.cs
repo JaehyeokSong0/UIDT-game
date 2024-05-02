@@ -7,30 +7,26 @@ public class ExitPanel : MonoBehaviour
 {
     public Button exitButton;
     public Button returnButton;
-
     private void Start()
     {
-
+        DontDestroyOnLoad(gameObject);
     }
+
     public void ActivateExitPanel()
     {
         if (UIManager.instance.b_exitPanelActivated == false)
         {
-            Instantiate(gameObject);
+            gameObject.SetActive(true);
             UIManager.instance.b_exitPanelActivated = true;
         }
-        else
-            gameObject.SetActive(true);
     }
 
     public void DeactivateExitPanel()
     {
         if (UIManager.instance.b_exitPanelActivated == true)
         {
-            Destroy(gameObject);
-            // gameObject.SetActive(false);
+            gameObject.SetActive(false);
             UIManager.instance.b_exitPanelActivated = false;
         }
     }
-
 }

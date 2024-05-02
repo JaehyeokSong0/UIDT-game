@@ -264,7 +264,8 @@ public class BattleManager : MonoBehaviour, IListener
 
     void LeaveRoom_Success()
     {
-        NetworkManager.instance.LoadScene(1);
+        //NetworkManager.instance.LoadScene(1);
+        GameManager.instance.LoadSceneByIndex(1);
         GameManager.instance.InitGameStatus();
     }
 
@@ -345,7 +346,6 @@ public class BattleManager : MonoBehaviour, IListener
                 {
                     var cell = attackRange.Dequeue();
                     int _attackedIdx = (cell[0] - 1) + (cell[1] - 1) * 4;
-                    Debug.Log(cell[0] + "," +cell[1] + " + " +  _attackedIdx);
 
                     StartCoroutine(MarkRange(_attackedIdx)) ;
                     if ((player[_enemyIdx].Pos[0] == cell[0]) && (player[_enemyIdx].Pos[1] == cell[1])) // ÇÇ°Ý
@@ -361,7 +361,7 @@ public class BattleManager : MonoBehaviour, IListener
             case CARD_TYPE.RESTORE:
                 int _en = player[playerIdx].En;
                 player[playerIdx].En = (player[playerIdx].En + playerCard.value <= MAX_EN) ? (player[playerIdx].En + playerCard.value) : MAX_EN;
-                InsertLog("[RESTORE] " + username + " / restored energy : " + _en.ToString() + " -> " + player[playerIdx].En.ToString());
+                InsertLog("[RESTORE] " + username + " / (EN) " + _en.ToString() + " -> " + player[playerIdx].En.ToString());
                 StartCoroutine(player[playerIdx].CharacterGO.GetComponent<CharacterAnimator>().Restore());
                 break;
         }
@@ -381,6 +381,7 @@ public class BattleManager : MonoBehaviour, IListener
         int posX = player[playerIdx].Pos[0];
         int posY = player[playerIdx].Pos[1];
         int moveVal = card.value;
+        string username = (playerIdx == 0) ? NetworkManager.instance.p1_username : NetworkManager.instance.p2_username;
         Debug.Log("[BattleManager] MovePos : " + posX + " , " + posY);
 
         switch (card.moveDir)
@@ -398,7 +399,7 @@ public class BattleManager : MonoBehaviour, IListener
                 player[playerIdx].Pos[1] = (posY - moveVal >= 1) ? posY - moveVal : MIN_HEIGHT;
                 break;
         }
-        InsertLog("[MOVE] Player" + playerIdx.ToString() + " : From (" + posX.ToString() + "," + posY.ToString() + ") To (" + player[playerIdx].Pos[0].ToString() + "," + player[playerIdx].Pos[1].ToString() + ")");
+        InsertLog("[MOVE] " + username + " : From (" + posX.ToString() + "," + posY.ToString() + ") To (" + player[playerIdx].Pos[0].ToString() + "," + player[playerIdx].Pos[1].ToString() + ")");
 
         // Animation 
         var toPos = positions[playerIdx, (player[playerIdx].Pos[1] - 1) * 4 + (player[playerIdx].Pos[0] - 1)];
@@ -449,18 +450,18 @@ public class BattleManager : MonoBehaviour, IListener
                         break;
                     case 7: // LEFT, DOWN
                         retX = (posX - 1 >= MIN_WIDTH) ? (posX - 1) : -1;
-                        retY = (posY - 1 <= MIN_HEIGHT) ? (posY - 1) : -1;
+                        retY = (posY - 1 >= MIN_HEIGHT) ? (posY - 1) : -1;
                         break;
                     case 8: // DOWN
-                        retY = (posY - 1 <= MIN_HEIGHT) ? (posY - 1) : -1;
+                        retY = (posY - 1 >= MIN_HEIGHT) ? (posY - 1) : -1;
                         break;
                     case 9: // RIGHT, DOWN
                         retX = (posX + 1 <= MAX_WIDTH) ? (posX + 1) : -1;
-                        retY = (posY - 1 <= MIN_HEIGHT) ? (posY - 1) : -1;
+                        retY = (posY - 1 >= MIN_HEIGHT) ? (posY - 1) : -1;
                         break;
                 }
 
-                if ((retX < 0) || (retY < 0)) // Invalid range
+                if ((retX < 1) || (retY < 1)) // Invalid range
                     continue;
 
                 int[] retPos = { retX, retY };
@@ -484,10 +485,8 @@ public class BattleManager : MonoBehaviour, IListener
         player[attackedPlayerIdx].Hp = (player[attackedPlayerIdx].Hp - damage >= 0) ? (player[attackedPlayerIdx].Hp - damage) : 0;
 
         string username = (attackedPlayerIdx == 0) ? NetworkManager.instance.p1_username : NetworkManager.instance.p2_username;
-        InsertLog("[ATTACK] " + username + "attacked / HP : " + _hp.ToString() + " -> " + player[attackedPlayerIdx].Hp.ToString());
-        if(player[attackedPlayerIdx].Hp == 0)
-            StartCoroutine(player[attackedPlayerIdx].CharacterGO.GetComponent<CharacterAnimator>().Die());
-
+        string enemyname = (attackedPlayerIdx == 0) ? NetworkManager.instance.p2_username : NetworkManager.instance.p1_username;
+        InsertLog("[ATTACK] " + enemyname + " attacked " + username + " / (HP) " + _hp.ToString() + " -> " + player[attackedPlayerIdx].Hp.ToString());
     }
 
     IEnumerator MarkRange(int idx)
@@ -508,6 +507,11 @@ public class BattleManager : MonoBehaviour, IListener
 
         p1_card.gameObject.SetActive(false);
         p2_card.gameObject.SetActive(false);
+
+        if(p1_hp <= 0)
+            StartCoroutine(player[0].CharacterGO.GetComponent<CharacterAnimator>().Die());
+        if (p2_hp <= 0)
+            StartCoroutine(player[1].CharacterGO.GetComponent<CharacterAnimator>().Die());
 
         if ((p1_hp > 0) && (p2_hp > 0))
             return GAME_RESULT.CONTINUE;
@@ -543,12 +547,18 @@ public class BattleManager : MonoBehaviour, IListener
 
     void InsertLog(string text)
     {
-        Debug.Log("[BattleManager] InsertLog : " + text);
-
         GameObject log = Instantiate(Resources.Load("Prefabs/Text_Log") as GameObject);
         TMP_Text logText = log.GetComponent<TMP_Text>();
         
         logText.transform.SetParent(logBox.content.transform);
         logText.text = text;
+
+        const float textHeight = 15.0f;
+        MoveScroll(textHeight + 1.0f);
+    }
+
+    void MoveScroll(float height)
+    {
+        logBox.content.anchoredPosition += new Vector2(0, height);
     }
 }

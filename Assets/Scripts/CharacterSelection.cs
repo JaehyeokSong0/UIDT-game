@@ -147,7 +147,6 @@ public class CharacterSelection : MonoBehaviour, IListener
         GameManager.instance.currPlayer = (NetworkManager.instance.IsMasterClient()) ? 1 : 2;
         GameManager.instance.SetEnemyCharacter();
 
-        // TODO 양 플레이어 캐릭터 등록
         GameManager.instance.LoadSceneByIndex(3);
     }
 

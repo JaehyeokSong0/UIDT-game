@@ -150,7 +150,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public override void OnMasterClientSwitched(Player newMasterClient)
     {
         Debug.Log("[NetworkManager] OnMasterClientSwitched()");
-        if (PhotonNetwork.LocalPlayer.NickName == newMasterClient.NickName)
+        if ((PhotonNetwork.LocalPlayer.NickName == newMasterClient.NickName) && (PhotonNetwork.CurrentRoom.IsOpen == true))
         {
             Hashtable _hash = new Hashtable() { { "ReadyPlayerCnt", 0 } };
             PhotonNetwork.CurrentRoom.SetCustomProperties(_hash);
@@ -178,7 +178,15 @@ public class NetworkManager : MonoBehaviourPunCallbacks
             if (roomStatus == "Waiting")
                 EventManager.instance.PostNotification(EVENT_TYPE.EXIT_GAME, this, null);
             else if (roomStatus == "Gaming")
+            {
+                // Set usernames
+                Player player1 = PhotonNetwork.CurrentRoom.GetPlayer(PhotonNetwork.CurrentRoom.masterClientId);
+                p1_username = player1.NickName;
+                p2_username = player1.GetNext().NickName;
+
                 EventManager.instance.PostNotification(EVENT_TYPE.START_GAME, this, null);
+                PhotonNetwork.CurrentRoom.IsOpen = false;
+            }
             else
                 Debug.LogError("[NetworkManager] OnRoomPropertiesUpdate() / RoomCustomProperty - Wrong RoomStatus");
         }
