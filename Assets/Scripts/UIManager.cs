@@ -52,16 +52,30 @@ public class UIManager : MonoBehaviour
         if(networkLoadingPanel == null)
             networkLoadingPanel = Instantiate(Resources.Load("Prefabs/Panel_Loading")) as GameObject;
 
+        if (exitPanel == null)
+        {
+            exitPanel = Instantiate(Resources.Load("Prefabs/Panel_Exit")) as GameObject;
+            exitPanel.SetActive(false);
+        }
+
         ActivateNetworkLoadingPanel();
     }
 
     private void Update() 
     {
         if (Input.GetKeyDown(KeyCode.Escape))
-            exitPanel.GetComponent<ExitPanel>().ActivateExitPanel();
+            ActivateExitPanel();
     }
 
     #region ActivatePrefabs
+    public void ActivateExitPanel()
+    {
+        if (exitPanel == null)
+            exitPanel = Instantiate(Resources.Load("Prefabs/Panel_Exit")) as GameObject;
+
+        exitPanel.GetComponent<ExitPanel>().ActivateExitPanel();
+    }
+
     public void ActivateNetworkLoadingPanel()
     {
         if (networkLoadingPanel == null)

@@ -25,5 +25,4 @@ public class NetworkLoadingPanel : MonoBehaviour
             UIManager.instance.b_networkLoadingPanelActivated = false;
         }
     }
-    
 }
