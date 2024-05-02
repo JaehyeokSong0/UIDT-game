@@ -264,7 +264,8 @@ public class BattleManager : MonoBehaviour, IListener
 
     void LeaveRoom_Success()
     {
-        NetworkManager.instance.LoadScene(1);
+        //NetworkManager.instance.LoadScene(1);
+        GameManager.instance.LoadSceneByIndex(1);
         GameManager.instance.InitGameStatus();
     }
 
@@ -345,7 +346,6 @@ public class BattleManager : MonoBehaviour, IListener
                 {
                     var cell = attackRange.Dequeue();
                     int _attackedIdx = (cell[0] - 1) + (cell[1] - 1) * 4;
-                    Debug.Log(cell[0] + "," +cell[1] + " + " +  _attackedIdx);
 
                     StartCoroutine(MarkRange(_attackedIdx)) ;
                     if ((player[_enemyIdx].Pos[0] == cell[0]) && (player[_enemyIdx].Pos[1] == cell[1])) // ÇÇ°Ý
