@@ -1,0 +1,12 @@
+
+# Sorting Layer Order
+Default : 0
+
+Panel_Loading : 1
+
+Panel_Exit : 2
+
+# Room Custom Properties
+RoomStatus
+ReadyPlayerCnt
+CharacterSelectedCnt
