@@ -26,7 +26,7 @@ MonoBehaviour:
   m_MinSize: {x: 500, y: 200}
   m_MaxSize: {x: 40480, y: 16192}
   vertical: 0
-  controlID: 1325
+  controlID: 1834
 --- !u!114 &2
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -89,7 +89,7 @@ MonoBehaviour:
     m_HSlider: 0
     m_VSlider: 0
     m_IgnoreScrollWheelUntilClicked: 0
-    m_EnableMouseInput: 0
+    m_EnableMouseInput: 1
     m_EnableSliderZoomHorizontal: 0
     m_EnableSliderZoomVertical: 0
     m_UniformScale: 1
@@ -178,9 +178,9 @@ MonoBehaviour:
   m_SceneHierarchy:
     m_TreeViewState:
       scrollPos: {x: 0, y: 0}
-      m_SelectedIDs: 506affff
+      m_SelectedIDs: 
       m_LastClickedID: 0
-      m_ExpandedIDs: a276ffff0afbffff90bd000040be00004abe0000
+      m_ExpandedIDs: f8defeffa276ffff0afbffff90bd000040be00004abe0000681901009c1a0100141b01004c1b0100561b0100
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -228,7 +228,7 @@ MonoBehaviour:
   m_MinSize: {x: 200, y: 200}
   m_MaxSize: {x: 16192, y: 16192}
   vertical: 1
-  controlID: 1326
+  controlID: 1835
 --- !u!114 &6
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -514,9 +514,9 @@ MonoBehaviour:
   m_PlayAudio: 0
   m_AudioPlay: 0
   m_Position:
-    m_Target: {x: 236.61926, y: 205.7673, z: -4.053789}
+    m_Target: {x: -5.1289196, y: -2.1077776, z: -1.7771343}
     speed: 2
-    m_Value: {x: 236.61926, y: 205.7673, z: -4.053789}
+    m_Value: {x: -5.1289196, y: -2.1077776, z: -1.7771343}
   m_RenderMode: 0
   m_CameraMode:
     drawMode: 0
@@ -567,9 +567,9 @@ MonoBehaviour:
     speed: 2
     m_Value: {x: 0, y: 0, z: 0, w: 1}
   m_Size:
-    m_Target: 332.05786
+    m_Target: 71.62537
     speed: 2
-    m_Value: 332.05786
+    m_Value: 71.62537
   m_Ortho:
     m_Target: 1
     speed: 2
@@ -618,7 +618,7 @@ MonoBehaviour:
   m_MinSize: {x: 200, y: 100}
   m_MaxSize: {x: 16192, y: 8096}
   vertical: 0
-  controlID: 1327
+  controlID: 1771
 --- !u!114 &9
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -836,9 +836,9 @@ MonoBehaviour:
       m_Icon: {fileID: 0}
       m_ResourceFile: 
   m_ListAreaState:
-    m_SelectedInstanceIDs: 506affff
-    m_LastClickedInstanceID: -38320
-    m_HadKeyboardFocusLastEvent: 0
+    m_SelectedInstanceIDs: 
+    m_LastClickedInstanceID: 0
+    m_HadKeyboardFocusLastEvent: 1
     m_ExpandedInstanceIDs: c6230000388e0000946d0000a66500007e0502006e990000cc9a00006c990000c28f00005a650000e013010002db01001adb0100bcc0000000000000886a0000546c0000ae6b0200bc4601004c470100f8470100924e0100361f020010220200a0220200f42302003023020012700200ea2002007e8202003e830200a45e0200fe60020078610200
     m_RenameOverlay:
       m_UserAcceptedRename: 0

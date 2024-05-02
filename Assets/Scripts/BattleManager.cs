@@ -485,9 +485,6 @@ public class BattleManager : MonoBehaviour, IListener
 
         string username = (attackedPlayerIdx == 0) ? NetworkManager.instance.p1_username : NetworkManager.instance.p2_username;
         InsertLog("[ATTACK] " + username + "attacked / HP : " + _hp.ToString() + " -> " + player[attackedPlayerIdx].Hp.ToString());
-        if(player[attackedPlayerIdx].Hp == 0)
-            StartCoroutine(player[attackedPlayerIdx].CharacterGO.GetComponent<CharacterAnimator>().Die());
-
     }
 
     IEnumerator MarkRange(int idx)
@@ -508,6 +505,11 @@ public class BattleManager : MonoBehaviour, IListener
 
         p1_card.gameObject.SetActive(false);
         p2_card.gameObject.SetActive(false);
+
+        if(p1_hp <= 0)
+            StartCoroutine(player[0].CharacterGO.GetComponent<CharacterAnimator>().Die());
+        if (p2_hp <= 0)
+            StartCoroutine(player[1].CharacterGO.GetComponent<CharacterAnimator>().Die());
 
         if ((p1_hp > 0) && (p2_hp > 0))
             return GAME_RESULT.CONTINUE;
