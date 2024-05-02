@@ -178,7 +178,14 @@ public class NetworkManager : MonoBehaviourPunCallbacks
             if (roomStatus == "Waiting")
                 EventManager.instance.PostNotification(EVENT_TYPE.EXIT_GAME, this, null);
             else if (roomStatus == "Gaming")
+            {
+                // Set usernames
+                Player player1 = PhotonNetwork.CurrentRoom.GetPlayer(PhotonNetwork.CurrentRoom.masterClientId);
+                p1_username = player1.NickName;
+                p2_username = player1.GetNext().NickName;
+
                 EventManager.instance.PostNotification(EVENT_TYPE.START_GAME, this, null);
+            }
             else
                 Debug.LogError("[NetworkManager] OnRoomPropertiesUpdate() / RoomCustomProperty - Wrong RoomStatus");
         }
