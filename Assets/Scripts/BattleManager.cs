@@ -399,7 +399,7 @@ public class BattleManager : MonoBehaviour, IListener
                 player[playerIdx].Pos[1] = (posY - moveVal >= 1) ? posY - moveVal : MIN_HEIGHT;
                 break;
         }
-        InsertLog("[MOVE] Player" + username + " : From (" + posX.ToString() + "," + posY.ToString() + ") To (" + player[playerIdx].Pos[0].ToString() + "," + player[playerIdx].Pos[1].ToString() + ")");
+        InsertLog("[MOVE] " + username + " : From (" + posX.ToString() + "," + posY.ToString() + ") To (" + player[playerIdx].Pos[0].ToString() + "," + player[playerIdx].Pos[1].ToString() + ")");
 
         // Animation 
         var toPos = positions[playerIdx, (player[playerIdx].Pos[1] - 1) * 4 + (player[playerIdx].Pos[0] - 1)];
