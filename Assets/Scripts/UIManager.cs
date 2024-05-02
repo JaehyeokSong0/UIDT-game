@@ -12,11 +12,13 @@ public class UIManager : MonoBehaviour
 
     #region UI objects   
 
-    public GameObject networkLoadingPanel;
+    private GameObject networkLoadingPanel;
     public GameObject exitPanel;
 
     [HideInInspector]
     public bool b_exitPanelActivated;
+    [HideInInspector]
+    public bool b_networkLoadingPanelActivated;
 
     #endregion
 
@@ -47,40 +49,30 @@ public class UIManager : MonoBehaviour
     {
         Debug.Log("[UIManager] Start");
         b_exitPanelActivated = false;
+        b_networkLoadingPanelActivated = false;
+
+        if(networkLoadingPanel == null)
+            networkLoadingPanel = Instantiate(Resources.Load("Prefabs/Panel_Loading")) as GameObject;
+
+        ActivateNetworkLoadingPanel();
     }
 
     private void Update() 
     {
         if (Input.GetKeyDown(KeyCode.Escape))
-            ActivateExitPanel();
+            exitPanel.GetComponent<ExitPanel>().ActivateExitPanel();
     }
 
     #region ActivatePrefabs
     public void ActivateNetworkLoadingPanel()
     {
-        Debug.Log("[UIManager] ActivateNetworkLoadingPanel");
-        if (networkLoadingPanel == null)
-        {
-            Debug.LogWarning("[UIManager] ActivateNetworkLoadingPanel() Failed");
-            networkLoadingPanel = Resources.Load<GameObject>("Prefabs/Panel_Loading");
-        }
-        networkLoadingPanel.gameObject.SetActive(true);
+        networkLoadingPanel.GetComponent<NetworkLoadingPanel>().ActivateNetworkLoadingPanel();
     }
     public void DeactivateNetworkLoadingPanel()
     {
-        Debug.Log("[UIManager] DeactivateNetworkLoadingPanel");
-        if (networkLoadingPanel == null)
-        {
-            Debug.LogWarning("[UIManager] DeactivateNetworkLoadingPanel() Failed");
-            networkLoadingPanel = Resources.Load<GameObject>("Prefabs/Panel_Loading");
-        }
-        networkLoadingPanel.gameObject.SetActive(false);
+        networkLoadingPanel.GetComponent<NetworkLoadingPanel>().DeactivateNetworkLoadingPanel();
     }
 
-    public void ActivateExitPanel()
-    {
-        exitPanel.GetComponent<ExitPanel>().ActivateExitPanel();
-    }
     #endregion
 
     #region UI Functions
