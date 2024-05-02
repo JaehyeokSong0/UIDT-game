@@ -361,7 +361,7 @@ public class BattleManager : MonoBehaviour, IListener
             case CARD_TYPE.RESTORE:
                 int _en = player[playerIdx].En;
                 player[playerIdx].En = (player[playerIdx].En + playerCard.value <= MAX_EN) ? (player[playerIdx].En + playerCard.value) : MAX_EN;
-                InsertLog("[RESTORE] " + username + " / restored energy : " + _en.ToString() + " -> " + player[playerIdx].En.ToString());
+                InsertLog("[RESTORE] " + username + " / (EN) " + _en.ToString() + " -> " + player[playerIdx].En.ToString());
                 StartCoroutine(player[playerIdx].CharacterGO.GetComponent<CharacterAnimator>().Restore());
                 break;
         }
@@ -381,6 +381,7 @@ public class BattleManager : MonoBehaviour, IListener
         int posX = player[playerIdx].Pos[0];
         int posY = player[playerIdx].Pos[1];
         int moveVal = card.value;
+        string username = (playerIdx == 0) ? NetworkManager.instance.p1_username : NetworkManager.instance.p2_username;
         Debug.Log("[BattleManager] MovePos : " + posX + " , " + posY);
 
         switch (card.moveDir)
@@ -398,7 +399,7 @@ public class BattleManager : MonoBehaviour, IListener
                 player[playerIdx].Pos[1] = (posY - moveVal >= 1) ? posY - moveVal : MIN_HEIGHT;
                 break;
         }
-        InsertLog("[MOVE] Player" + playerIdx.ToString() + " : From (" + posX.ToString() + "," + posY.ToString() + ") To (" + player[playerIdx].Pos[0].ToString() + "," + player[playerIdx].Pos[1].ToString() + ")");
+        InsertLog("[MOVE] Player" + username + " : From (" + posX.ToString() + "," + posY.ToString() + ") To (" + player[playerIdx].Pos[0].ToString() + "," + player[playerIdx].Pos[1].ToString() + ")");
 
         // Animation 
         var toPos = positions[playerIdx, (player[playerIdx].Pos[1] - 1) * 4 + (player[playerIdx].Pos[0] - 1)];
@@ -484,7 +485,8 @@ public class BattleManager : MonoBehaviour, IListener
         player[attackedPlayerIdx].Hp = (player[attackedPlayerIdx].Hp - damage >= 0) ? (player[attackedPlayerIdx].Hp - damage) : 0;
 
         string username = (attackedPlayerIdx == 0) ? NetworkManager.instance.p1_username : NetworkManager.instance.p2_username;
-        InsertLog("[ATTACK] " + username + "attacked / HP : " + _hp.ToString() + " -> " + player[attackedPlayerIdx].Hp.ToString());
+        string enemyname = (attackedPlayerIdx == 0) ? NetworkManager.instance.p2_username : NetworkManager.instance.p1_username;
+        InsertLog("[ATTACK] " + enemyname + " attacked " + username + " / (HP) " + _hp.ToString() + " -> " + player[attackedPlayerIdx].Hp.ToString());
     }
 
     IEnumerator MarkRange(int idx)
@@ -545,12 +547,18 @@ public class BattleManager : MonoBehaviour, IListener
 
     void InsertLog(string text)
     {
-        Debug.Log("[BattleManager] InsertLog : " + text);
-
         GameObject log = Instantiate(Resources.Load("Prefabs/Text_Log") as GameObject);
         TMP_Text logText = log.GetComponent<TMP_Text>();
         
         logText.transform.SetParent(logBox.content.transform);
         logText.text = text;
+
+        const float textHeight = 15.0f;
+        MoveScroll(textHeight + 1.0f);
+    }
+
+    void MoveScroll(float height)
+    {
+        logBox.content.anchoredPosition += new Vector2(0, height);
     }
 }
