@@ -213,18 +213,14 @@ public class GameManager : MonoBehaviour, IPunObservable
         if (playerNum == 1)
         {
             for (int i = 0; i < s_cardNames.Length; i++)
-            { //TEST
-                Debug.Log("[GameManager] SetCardRPC : 1 - " + i);
-                Card c = Resources.Load<Card>(_path + s_characterTypes[i].ToString() + "/" + s_cardNames[i].ToString());
-                Debug.Log("[GameManager] SetCardRPC : 2 - " + c.name);
-                q_p1_card.Enqueue(c);
-                Debug.Log("[GameManager] SetCardRPC : 3" + q_p1_card.Count);
-            }
+                q_p1_card.Enqueue(Resources.Load<Card>(_path + s_characterTypes[i].ToString() + "/" + s_cardNames[i].ToString()));
+            EventManager.instance.PostNotification(EVENT_TYPE.PLAYER_1_CARD_SELECTED, this, null);
         }
         else if (playerNum == 2)
         {
             for (int i = 0; i < s_cardNames.Length; i++)
                 q_p2_card.Enqueue(Resources.Load<Card>(_path + s_characterTypes[i].ToString() + "/" + s_cardNames[i].ToString()));
+            EventManager.instance.PostNotification(EVENT_TYPE.PLAYER_2_CARD_SELECTED, this, null);
         }
         else
             Debug.LogError("[GameManager] SetCardRPC : Invalid playerNum" + playerNum);

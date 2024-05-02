@@ -1,3 +1,4 @@
+using Photon.Realtime;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -5,7 +6,7 @@ using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-public class CardSelection : MonoBehaviour
+public class CardSelection : MonoBehaviour, IListener
 {
     //public static CardSelection instance = null;
     [HideInInspector]
@@ -57,7 +58,6 @@ public class CardSelection : MonoBehaviour
     public TMP_Text requiredEN_text;
     private int requiredEN;
     private bool isReady;
-    private bool p1_ready, p2_ready;
     public Transform[] miniMap = new Transform[12];
 
     private void Awake()
@@ -77,6 +77,9 @@ public class CardSelection : MonoBehaviour
         leftPage.onClick.AddListener(SwipeLeft);
         rightPage.onClick.AddListener(SwipeRight);
         readyButton.onClick.AddListener(ReadyForBattle);
+
+        EventManager.instance.AddListener(EVENT_TYPE.PLAYER_1_CARD_SELECTED, this);
+        EventManager.instance.AddListener(EVENT_TYPE.PLAYER_2_CARD_SELECTED, this);
     }
 
     private void Start()
@@ -86,8 +89,6 @@ public class CardSelection : MonoBehaviour
 
         GameManager.instance.GetPlayerStatus(1, out p1_HP, out p1_EN);
         GameManager.instance.GetPlayerStatus(2, out p2_HP, out p2_EN);
-        p1_ready = GameManager.instance.GetReadyStatus(1);
-        p2_ready = GameManager.instance.GetReadyStatus(2);
         currPlayer = GameManager.instance.currPlayer;
         p1_username.text = NetworkManager.instance.p1_username;
         p2_username.text = NetworkManager.instance.p2_username;
@@ -117,9 +118,21 @@ public class CardSelection : MonoBehaviour
         Init();
     }
 
-    public void OnEnable()
+    public void OnEvent(EVENT_TYPE event_type, Component sender, object param = null)
     {
-        Debug.Log("[CardSelection] OnEnable");
+        switch (event_type)
+        {
+            case EVENT_TYPE.PLAYER_1_CARD_SELECTED:
+                Debug.Log("[CardSelection] (E)PLAYER_1_CARD_SELECTED");
+                GameManager.instance.SetReadyStatus(1, true);
+                SetReadyUI(1, true);
+                break;
+            case EVENT_TYPE.PLAYER_2_CARD_SELECTED:
+                Debug.Log("[CardSelection] (E)PLAYER_2_CARD_SELECTED");
+                GameManager.instance.SetReadyStatus(2, true);
+                SetReadyUI(2, true);
+                break;
+        }
     }
 
     void ShowPlayerIcon(int[] p1_pos, int[] p2_pos)
@@ -140,10 +153,12 @@ public class CardSelection : MonoBehaviour
         requiredEN = 0;
         q_selectedCard.Clear();
         RestoreEnergy();
+        GameManager.instance.SetReadyStatus(1, false);
+        GameManager.instance.SetReadyStatus(2, false);
 
         SetUserUI(p1_HP, p1_EN, p2_HP, p2_EN);
-        SetReadyUI(1, p1_ready);
-        SetReadyUI(2, p2_ready);
+        SetReadyUI(1, false);
+        SetReadyUI(2, false);
         ShowPlayerIcon(GameManager.instance.p1_pos, GameManager.instance.p2_pos);
     }
 
