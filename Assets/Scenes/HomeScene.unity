@@ -458,8 +458,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: -4349003077786830738, guid: e5c31c6122997e64c9bdb53e379528ff, type: 3}
-        m_TargetAssemblyTypeName: ExitPanel, Assembly-CSharp
+      - m_Target: {fileID: 1319253414}
+        m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
         m_MethodName: ActivateExitPanel
         m_Mode: 1
         m_Arguments:
@@ -2042,6 +2042,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   warningMessage: {fileID: 860774596}
   nicknameInputField: {fileID: 1831908776}
+--- !u!114 &1319253414 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1585573334458456086, guid: 132d56cc3a2d05c4080996311e058a22, type: 3}
+  m_PrefabInstance: {fileID: 7053885266529583302}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87970626c43781847adee386335342dc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1338833298
 GameObject:
   m_ObjectHideFlags: 0
