@@ -36,7 +36,7 @@ public class CardUI : MonoBehaviour
         cost.text = cardInfo.energy.ToString();
 
         // CharacterColor
-        for (int i = 0; i < System.Enum.GetValues(typeof(CHARACTER_TYPE)).Length; i++) // Init 
+        for (int i = 0; i < System.Enum.GetValues(typeof(CharacterType)).Length; i++) // Init 
             characterColor[i].gameObject.SetActive(false);
         characterColor[(int)cardInfo.characterType].gameObject.SetActive(true);
 
@@ -45,17 +45,17 @@ public class CardUI : MonoBehaviour
             PaintCell(i, defaultCellColor);
         switch(cardInfo.cardType)
         {
-            case CARD_TYPE.MOVE:
+            case CardType.Move:
                 PaintCell((int)cardInfo.moveDir, moveCellColor);
                 break;
-            case CARD_TYPE.ATTACK:
+            case CardType.Attack:
                 for (int i = 0; i < 9; i++)
                     if (cardInfo.attackAttr[i]) PaintCell(i, attackCellColor);
                 break;
-            case CARD_TYPE.GUARD:
+            case CardType.Guard:
                 PaintCell(4, guardCellColor);
                 break;
-            case CARD_TYPE.RESTORE:
+            case CardType.Restore:
                 PaintCell(4, restoreCellColor);
                 break;
         }

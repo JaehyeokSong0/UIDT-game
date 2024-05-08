@@ -57,9 +57,9 @@ public class ActivatedRoom : MonoBehaviour, IPointerClickHandler
         }
     }
 
-    public void SetGameStatus(bool status)
+    public void SetGameStatus(bool isWaiting)
     {
-        if(status == true) // Room is open
+        if(isWaiting == true) // Room is open
         {
             Waiting.SetActive(true);
             Gaming.SetActive(false);
@@ -71,17 +71,17 @@ public class ActivatedRoom : MonoBehaviour, IPointerClickHandler
         }
     }
 
-    public void Req_JoinRoom()
+    public void TryJoinRoom()
     // JoinRoom 요청을 보내 수신한 콜백 이벤트에 따라 LobbyManager에서 작업 수행
     {
-        lobbyManager.Req_JoinRoom(_roomInfo.Name);
+        lobbyManager.TryJoinRoom(_roomInfo.Name);
     }
 
     #region IPointClickHandler Implementation
     public void OnPointerClick(PointerEventData eventData)
     {
         if (_roomInfo.PlayerCount == 1)
-            Req_JoinRoom();
+            TryJoinRoom();
     }
     #endregion
 }

@@ -6,69 +6,72 @@ using System.Linq;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class InRoom : MonoBehaviour, IListener
 {
     public LobbyManager lobbyManager;
 
-    private readonly Color ReadyTextColor = new Color32(100,100,0,255);
+    private readonly Color ReadyTextColor = new Color32(100, 100, 0, 255);
     private readonly Color NotReadyTextColor = new Color32(200, 200, 200, 255);
 
-    public GameObject UI_InRoom;
+    [FormerlySerializedAs("UI_InRoom")]
+    public GameObject InRoomUI;
     public TMP_Text player1Name;
     public TMP_Text player2Name;
     public TMP_Text player2Ready;
     public Button ReadyButton;
-    public Button ReadyButton_Pressed;
+    [FormerlySerializedAs("ReadyButton_Pressed")]
+    public Button ReadyButtonPressed;
     public Button StartButton;
     public Button ExitButton;
 
     private void Awake()
     {
-        EventManager.instance.AddListener(EVENT_TYPE.INIT_INROOM, this);
-        EventManager.instance.AddListener(EVENT_TYPE.HOST_LEFT_ROOM, this);
-        EventManager.instance.AddListener(EVENT_TYPE.LEFT_ROOM_SUCCESS, this);
-        EventManager.instance.AddListener(EVENT_TYPE.CLIENT_JOIN_ROOM, this);
-        EventManager.instance.AddListener(EVENT_TYPE.CLIENT_LEFT_ROOM, this);
-        EventManager.instance.AddListener(EVENT_TYPE.CLIENT_READY, this);
-        EventManager.instance.AddListener(EVENT_TYPE.CLIENT_NOT_READY, this);
-        EventManager.instance.AddListener(EVENT_TYPE.START_GAME, this);
+        EventManager.instance.AddListener(EventType.InitInRoom, this);
+        EventManager.instance.AddListener(EventType.HostLeftRoom, this);
+        EventManager.instance.AddListener(EventType.LeftRoomSuccess, this);
+        EventManager.instance.AddListener(EventType.ClientJoinRoom, this);
+        EventManager.instance.AddListener(EventType.ClientLeftRoom, this);
+        EventManager.instance.AddListener(EventType.ClientReady, this);
+        EventManager.instance.AddListener(EventType.ClientNotReady, this);
+        EventManager.instance.AddListener(EventType.EnterCharacterSelectionPhase, this);
     }
 
     // Start is called before the first frame update
     private void Start()
     {
-        UI_InRoom = gameObject;
+        InRoomUI = gameObject;
 
-        ReadyButton.onClick.AddListener(Ready_InRoom);
-        ReadyButton_Pressed.onClick.AddListener(NotReady_InRoom);
-        StartButton.onClick.AddListener(Req_StartGame_InRoom);
-        ExitButton.onClick.AddListener(Req_Exit_InRoom);
+        ReadyButton.onClick.AddListener(ReadyInRoom);
+        ReadyButtonPressed.onClick.AddListener(NotReadyInRoom);
+        StartButton.onClick.AddListener(TryStartGameInRoom);
+        ExitButton.onClick.AddListener(TryExitInRoom);
     }
 
-    public void OnEvent(EVENT_TYPE event_type, Component sender, object param = null)
+    public void OnEvent(EventType eventType, Component sender, object param = null)
     {
-        Debug.LogFormat("[InRoom] OnEvent() / EVENT : {0}, Sender : {1}, Param : {2} ", event_type, sender.gameObject.name.ToString(), param);
+        Debug.LogFormat("[InRoom] OnEvent() / EVENT : {0}, Sender : {1}, Param : {2} ", eventType, sender.gameObject.name.ToString(), param);
 
-        switch (event_type)
+        switch (eventType)
         {
-            case EVENT_TYPE.INIT_INROOM:
+            case EventType.InitInRoom:
                 Debug.Log("[InRoom] (E)INIT_INROOM");
                 SetInRoom();
                 break;
 
-            case EVENT_TYPE.HOST_LEFT_ROOM:
+            case EventType.HostLeftRoom:
                 Debug.Log("[InRoom] (E)HOST_LEFT_ROOM");
                 MigrateHost();
                 break;
 
-            case EVENT_TYPE.LEFT_ROOM_SUCCESS:
+            case EventType.LeftRoomSuccess:
                 Debug.Log("[InRoom] (E)LEFT_ROOM_SUCCESS");
-                Exit_InRoom_Success();
+                ExitInRoomSuccess();
                 break;
 
-            case EVENT_TYPE.CLIENT_JOIN_ROOM:
+            case EventType.ClientJoinRoom:
                 Debug.Log("[InRoom] (E)CLIENT_JOIN_ROOM");
                 if (param is Player)
                     ClientJoinedRoom(param as Player);
@@ -76,24 +79,24 @@ public class InRoom : MonoBehaviour, IListener
                     Debug.LogError("[InRoom] ((E)CLIENT_JOIN_ROOM) Casting invalid");
                 break;
 
-            case EVENT_TYPE.CLIENT_LEFT_ROOM:
+            case EventType.ClientLeftRoom:
                 Debug.Log("[InRoom] (E)CLIENT_LEFT_ROOM");
                 ClientLeftRoom();
                 break;
 
-            case EVENT_TYPE.CLIENT_READY:
+            case EventType.ClientReady:
                 Debug.Log("[InRoom] (E)CLIENT_READY");
                 SetClientReadyText(ReadyTextColor);
                 break;
 
-            case EVENT_TYPE.CLIENT_NOT_READY:
+            case EventType.ClientNotReady:
                 Debug.Log("[InRoom] (E)CLIENT_NOT_READY");
                 SetClientReadyText(NotReadyTextColor);
                 break;
 
-            case EVENT_TYPE.START_GAME:
-                Debug.Log("[InRoom] (E)START_GAME");
-                StartGame_InRoom();
+            case EventType.EnterCharacterSelectionPhase:
+                Debug.Log("[InRoom] (E)EnterCharacterSelectionPhase");
+                StartGameInRoom();
                 break;
         }
     }
@@ -118,14 +121,14 @@ public class InRoom : MonoBehaviour, IListener
         if (isHost) // CreateRoom의 경우
         {
             ReadyButton.gameObject.SetActive(false);
-            ReadyButton_Pressed.gameObject.SetActive(false);
+            ReadyButtonPressed.gameObject.SetActive(false);
             StartButton.gameObject.SetActive(true);
         }
         else // JoinRoom의 경우
         {
             player2Name.text = player2.NickName;
             ReadyButton.gameObject.SetActive(true);
-            ReadyButton_Pressed.gameObject.SetActive(false);
+            ReadyButtonPressed.gameObject.SetActive(false);
             StartButton.gameObject.SetActive(false);
         }
     }
@@ -143,24 +146,24 @@ public class InRoom : MonoBehaviour, IListener
         player2Name.text = "";
     }
 
-    public void Ready_InRoom()
+    public void ReadyInRoom()
     // Player2의 Status를 Ready로 변경
     {
-        EventManager.instance.PostNotification(EVENT_TYPE.CLIENT_READY, this, null);
+        EventManager.instance.PostNotification(EventType.ClientReady, this, null);
         NetworkManager.instance.ReadyInRoom(true);
 
         ReadyButton.gameObject.SetActive(false);
-        ReadyButton_Pressed.gameObject.SetActive(true);
+        ReadyButtonPressed.gameObject.SetActive(true);
     }
 
-    public void NotReady_InRoom()
+    public void NotReadyInRoom()
     // Player2의 Status를 NotReady로 변경
     { 
-        EventManager.instance.PostNotification(EVENT_TYPE.CLIENT_NOT_READY, this, null);
+        EventManager.instance.PostNotification(EventType.ClientNotReady, this, null);
         NetworkManager.instance.ReadyInRoom(false);
 
         ReadyButton.gameObject.SetActive(true);
-        ReadyButton_Pressed.gameObject.SetActive(false);
+        ReadyButtonPressed.gameObject.SetActive(false);
     }
 
     public void SetClientReadyText(Color newColor)
@@ -168,7 +171,7 @@ public class InRoom : MonoBehaviour, IListener
         player2Ready.color = newColor;
     }
 
-    public void Req_StartGame_InRoom()
+    public void TryStartGameInRoom()
     // Room의 Status를 Gaming으로 변경 + Character Select Scene으로 전환
     {
         NetworkManager.instance.p1_username = player1Name.text;
@@ -176,17 +179,17 @@ public class InRoom : MonoBehaviour, IListener
         NetworkManager.instance.StartGame();
     }
 
-    public void StartGame_InRoom()
+    public void StartGameInRoom()
     {
         GameManager.instance.LoadSceneByIndex(2); // SelectScene
     }
 
-    public void Req_Exit_InRoom()
+    public void TryExitInRoom()
     {
         NetworkManager.instance.LeaveRoom();
     }
 
-    public void Exit_InRoom_Success()
+    public void ExitInRoomSuccess()
     // InGame UI 해제
     {
         lobbyManager.ExitRoom();
@@ -202,7 +205,7 @@ public class InRoom : MonoBehaviour, IListener
         SetClientReadyText(NotReadyTextColor);
 
         ReadyButton.gameObject.SetActive(false);
-        ReadyButton_Pressed.gameObject.SetActive(false);
+        ReadyButtonPressed.gameObject.SetActive(false);
         StartButton.gameObject.SetActive(true);
     }
 }

@@ -30,7 +30,7 @@ public class CardSelection : MonoBehaviour, IListener
     [Header("Cards")]
     public CardUI[] cards = new CardUI[deckSize];
     public CardUI[] selectedCardUI = new CardUI[selectedCardSize];
-    private Queue<Card> q_selectedCard = new Queue<Card>();
+    private Queue<Card> selectedCardQueue = new Queue<Card>();
 
     [Header("Player1 UI")]
     public Image p1_HP_img;
@@ -78,8 +78,8 @@ public class CardSelection : MonoBehaviour, IListener
         rightPage.onClick.AddListener(SwipeRight);
         readyButton.onClick.AddListener(ReadyForBattle);
 
-        EventManager.instance.AddListener(EVENT_TYPE.PLAYER_1_CARD_SELECTED, this);
-        EventManager.instance.AddListener(EVENT_TYPE.PLAYER_2_CARD_SELECTED, this);
+        EventManager.instance.AddListener(EventType.Player1CardSelected, this);
+        EventManager.instance.AddListener(EventType.Player2CardSelected, this);
     }
 
     private void Start()
@@ -95,19 +95,19 @@ public class CardSelection : MonoBehaviour, IListener
 
         switch (GameManager.instance.GetCharacter())
         {
-            case CHARACTER_TYPE.BERSERKER:
+            case CharacterType.Berserker:
                 cards[deckSize - 2].SetCard(Resources.Load<Card>("Prefabs/Cards/BERSERKER/Explosion"));
                 cards[deckSize - 1].SetCard(Resources.Load<Card>("Prefabs/Cards/BERSERKER/Restore_20"));
                 break;
-            case CHARACTER_TYPE.MAGE:
+            case CharacterType.Mage:
                 cards[deckSize - 2].SetCard(Resources.Load<Card>("Prefabs/Cards/MAGE/Scatter"));
                 cards[deckSize - 1].SetCard(Resources.Load<Card>("Prefabs/Cards/MAGE/Shot"));
                 break;
-            case CHARACTER_TYPE.ROGUE:
+            case CharacterType.Rogue:
                 cards[deckSize - 2].SetCard(Resources.Load<Card>("Prefabs/Cards/ROGUE/Move_Left_2"));
                 cards[deckSize - 1].SetCard(Resources.Load<Card>("Prefabs/Cards/ROGUE/Move_Right_2"));
                 break;
-            case CHARACTER_TYPE.WARRIOR:
+            case CharacterType.Warrior:
                 cards[deckSize - 2].SetCard(Resources.Load<Card>("Prefabs/Cards/WARRIOR/Guard_30"));
                 cards[deckSize - 1].SetCard(Resources.Load<Card>("Prefabs/Cards/WARRIOR/Tackle"));
                 break;
@@ -118,16 +118,16 @@ public class CardSelection : MonoBehaviour, IListener
         Init();
     }
 
-    public void OnEvent(EVENT_TYPE event_type, Component sender, object param = null)
+    public void OnEvent(EventType eventType, Component sender, object param = null)
     {
-        switch (event_type)
+        switch (eventType)
         {
-            case EVENT_TYPE.PLAYER_1_CARD_SELECTED:
+            case EventType.Player1CardSelected:
                 Debug.Log("[CardSelection] (E)PLAYER_1_CARD_SELECTED");
                 GameManager.instance.SetReadyStatus(1, true);
                 SetReadyUI(1, true);
                 break;
-            case EVENT_TYPE.PLAYER_2_CARD_SELECTED:
+            case EventType.Player2CardSelected:
                 Debug.Log("[CardSelection] (E)PLAYER_2_CARD_SELECTED");
                 GameManager.instance.SetReadyStatus(2, true);
                 SetReadyUI(2, true);
@@ -151,7 +151,7 @@ public class CardSelection : MonoBehaviour, IListener
     {
         isReady = false;
         requiredEN = 0;
-        q_selectedCard.Clear();
+        selectedCardQueue.Clear();
         RestoreEnergy();
         GameManager.instance.SetReadyStatus(1, false);
         GameManager.instance.SetReadyStatus(2, false);
@@ -198,14 +198,14 @@ public class CardSelection : MonoBehaviour, IListener
 
     public bool CheckSelectValidation(Card card)
     {
-        Debug.Log("[CardSelection] / q_selectedCard.Count" + q_selectedCard.Count);
+        Debug.Log("[CardSelection] / selectedCardQueue.Count" + selectedCardQueue.Count);
         // Check queue size validation
-        if ((q_selectedCard.Count < 0) || (q_selectedCard.Count > selectedCardSize))
+        if ((selectedCardQueue.Count < 0) || (selectedCardQueue.Count > selectedCardSize))
         {
-            Debug.LogError("[CardSelection] CheckSelectValidation : Wrong value in q_selectedCard");
+            Debug.LogError("[CardSelection] CheckSelectValidation : Wrong value in selectedCardQueue");
             return false;
         }
-        else if (q_selectedCard.Count == selectedCardSize) // Full queue
+        else if (selectedCardQueue.Count == selectedCardSize) // Full queue
             return false;
 
         // Check Energy Requirement
@@ -220,10 +220,10 @@ public class CardSelection : MonoBehaviour, IListener
     {
         Debug.Log("[CardSelection] SelectCard : " + card.cardName);
 
-        if (q_selectedCard.Count < selectedCardSize)
+        if (selectedCardQueue.Count < selectedCardSize)
         {  
-            q_selectedCard.Enqueue(card.cardInfo);
-            if (card.cardInfo.cardType == CARD_TYPE.RESTORE)
+            selectedCardQueue.Enqueue(card.cardInfo);
+            if (card.cardInfo.cardType == CardType.Restore)
                 requiredEN -= card.cardInfo.value;
             else
                 requiredEN += card.cardInfo.energy;
@@ -238,7 +238,7 @@ public class CardSelection : MonoBehaviour, IListener
         Debug.Log("[CardSelection] DeselectCard : " + card.cardInfo.cardName);
 
         // Calculate required energy
-        if (card.cardInfo.cardType == CARD_TYPE.RESTORE)
+        if (card.cardInfo.cardType == CardType.Restore)
             requiredEN += card.cardInfo.value;
         else
             requiredEN -= card.cardInfo.energy;
@@ -255,36 +255,36 @@ public class CardSelection : MonoBehaviour, IListener
         }
 
         // Delete card in queue
-        int currQSize = q_selectedCard.Count;
+        int currQSize = selectedCardQueue.Count;
         for(int i = 0; i < currQSize; i++)
         {
-            Card _card = q_selectedCard.Dequeue();
+            Card _card = selectedCardQueue.Dequeue();
             if (_card.cardName != card.cardInfo.cardName)
-                q_selectedCard.Enqueue(_card);
+                selectedCardQueue.Enqueue(_card);
         }
 
         SetSelectedCardUI();
     }
     public void ReadyForBattle()
     {
-        if (!isReady && (q_selectedCard.Count == 3))
+        if (!isReady && (selectedCardQueue.Count == 3))
             isReady = true;
         else
             return;
 
         Debug.Log("[CardSelection] ReadyForBattle");
-        GameManager.instance.SetCard(currPlayer, q_selectedCard);
+        GameManager.instance.SetCard(currPlayer, selectedCardQueue);
     }
 
     private void SetSelectedCardUI()
     {
-        int currQSize = q_selectedCard.Count;
+        int currQSize = selectedCardQueue.Count;
         for (int i = 0; i < selectedCardSize; i++)
         {
             if (i < currQSize)
             {
-                Card _card = q_selectedCard.Dequeue();
-                q_selectedCard.Enqueue(_card);
+                Card _card = selectedCardQueue.Dequeue();
+                selectedCardQueue.Enqueue(_card);
                 Debug.Log(i + " : "+ _card.cardName);
                 selectedCardUI[i].SetCard(_card);
                 selectedCardUI[i].gameObject.SetActive(true);

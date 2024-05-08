@@ -11,18 +11,18 @@ public class NetworkLoadingPanel : MonoBehaviour
 
     public void ActivateNetworkLoadingPanel()
     {
-        if (UIManager.instance.b_networkLoadingPanelActivated == false)
+        if (UIManager.instance.isNetworkLoadingPanelActivated == false)
         {
             gameObject.SetActive(true);
-            UIManager.instance.b_networkLoadingPanelActivated = true;
+            UIManager.instance.isNetworkLoadingPanelActivated = true;
         }
     }
     public void DeactivateNetworkLoadingPanel()
     {
-        if (UIManager.instance.b_networkLoadingPanelActivated == true)
+        if (UIManager.instance.isNetworkLoadingPanelActivated == true)
         {
             gameObject.SetActive(false);
-            UIManager.instance.b_networkLoadingPanelActivated = false;
+            UIManager.instance.isNetworkLoadingPanelActivated = false;
         }
     }
 }

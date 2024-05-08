@@ -4,33 +4,40 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
-public enum EVENT_TYPE
+public enum EventType
 {
-    CREATE_ROOM_SUCCESS, 
-    CREATE_ROOM_FAILURE, 
-    JOIN_ROOM_SUCCESS, 
-    JOIN_ROOM_FAILURE, 
-    LEFT_ROOM_SUCCESS,
-    UPDATE_LOBBY,
-    INIT_INROOM, // Create 혹은 Join 시 RoomStatus 초기화
-    HOST_LEFT_ROOM,
-    CLIENT_JOIN_ROOM,
-    CLIENT_LEFT_ROOM,
-    CLIENT_READY,
-    CLIENT_NOT_READY,
-    START_GAME, // ENTER_CHARACTER_SELECTION_PHASE
-    ENTER_CARD_SELECTION_PHASE,
-    PLAYER_1_CARD_SELECTED,
-    PLAYER_2_CARD_SELECTED,
-    ENTER_BATTLE_PHASE,
-    EXIT_GAME
+    // LobbyScene
+    CreateRoomSuccess,
+    CreateRoomFailure, 
+    JoinRoomSuccess, 
+    JoinRoomFailure, 
+    LeftRoomSuccess,
+    UpdateLobby,
+    InitInRoom, // Create 혹은 Join 시 RoomStatus 초기화
+    HostLeftRoom,
+    ClientJoinRoom,
+    ClientLeftRoom,
+    ClientReady,
+    ClientNotReady,
+    EnterCharacterSelectionPhase,
+
+    // CharacterSelectionScene
+    EnterCardSelectionPhase,
+
+    // CardSelectionScene
+    Player1CardSelected,
+    Player2CardSelected,
+    EnterBattlePhase,
+
+    // BattleScene
+    ExitGame
 };
 
 
 public class EventManager : MonoBehaviour
 {
     public static EventManager instance = null;
-    private Dictionary<EVENT_TYPE, List<IListener>> Listeners = new Dictionary<EVENT_TYPE, List<IListener>>();
+    private Dictionary<EventType, List<IListener>> Listeners = new Dictionary<EventType, List<IListener>>();
 
     private void Awake()
     {
@@ -62,48 +69,47 @@ public class EventManager : MonoBehaviour
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
     
-    public void AddListener(EVENT_TYPE event_type, IListener listener)
+    public void AddListener(EventType eventType, IListener listener)
     {
-        // Debug.Log("[EventManager] AddListener() : " + event_type + " added to " + listener);
+ 
         List<IListener> ListenList = null;
 
-        if(Listeners.TryGetValue(event_type, out ListenList))
+        if(Listeners.TryGetValue(eventType, out ListenList))
             ListenList.Add(listener);
         else
         {
             ListenList = new List<IListener>();
             ListenList.Add(listener);
-            Listeners.Add(event_type, ListenList);
+            Listeners.Add(eventType, ListenList);
         }
     }
 
-    public void PostNotification(EVENT_TYPE event_type, Component sender, object param = null)
+    public void PostNotification(EventType eventType, Component sender, object param = null)
     {
-        // Debug.Log("[EventManager] PostNotification() : " + event_type);
         List<IListener> ListenList = null;
 
-        if(Listeners.TryGetValue(event_type, out ListenList))
+        if(Listeners.TryGetValue(eventType, out ListenList))
         {
-            Debug.Log("[EventManager] PostNotification() : " + event_type + " / " + ListenList);
+            Debug.Log("[EventManager] PostNotification() : " + eventType + " / " + ListenList);
             for (int i = 0; i< ListenList.Count; i++)
             {
                 if(!ListenList[i].Equals(null))
-                    ListenList[i].OnEvent(event_type, sender, param);
+                    ListenList[i].OnEvent(eventType, sender, param);
             }
         }
     }
 
-    public void RemoveEvent(EVENT_TYPE event_type)
+    public void RemoveEvent(EventType eventType)
     {
-        Listeners.Remove(event_type);
+        Listeners.Remove(eventType);
     }
 
     public void RemoveRedundancies()
     // Listeners 내의 중복 제거
     {
-        Dictionary<EVENT_TYPE, List<IListener>> _Listeners = new Dictionary<EVENT_TYPE, List<IListener>>();
+        Dictionary<EventType, List<IListener>> _Listeners = new Dictionary<EventType, List<IListener>>();
 
-        foreach(KeyValuePair<EVENT_TYPE, List<IListener>> item in Listeners)
+        foreach(KeyValuePair<EventType, List<IListener>> item in Listeners)
         {
             for(int i = item.Value.Count - 1; i >= 0; i--) 
             // IListener

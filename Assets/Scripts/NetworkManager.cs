@@ -20,7 +20,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     private Dictionary<string, RoomInfo> _roomList = new Dictionary<string, RoomInfo>();
     private LobbyManager _lobbyManager;
 
-    private bool _reconnectionToLobby = false; // leaveRoom 등의 메소드 이후 master 서버에 재접속 시 true
+    private bool _isReconnectionToLobby = false; // leaveRoom 등의 메소드 이후 master 서버에 재접속 시 true
 
     public string p1_username, p2_username;
     #endregion
@@ -65,14 +65,14 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public override void OnConnectedToMaster()
     {
-        Debug.Log("[NetworkManager] OnConnectedToMaster() / reconnection : " + _reconnectionToLobby);
+        Debug.Log("[NetworkManager] OnConnectedToMaster() / reconnection : " + _isReconnectionToLobby);
 
         UIManager.instance.DeactivateNetworkLoadingPanel();
         
-        if (_reconnectionToLobby)
+        if (_isReconnectionToLobby)
             PhotonNetwork.JoinLobby();
         else
-            _reconnectionToLobby = true;
+            _isReconnectionToLobby = true;
     }
 
     public override void OnDisconnected(DisconnectCause cause)
@@ -100,51 +100,51 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         Debug.Log("[NetworkManager] OnRoomListUpdate()" + roomList);
         UpdateRoomList(roomList);
 
-        EventManager.instance.PostNotification(EVENT_TYPE.UPDATE_LOBBY, this, _roomList);
+        EventManager.instance.PostNotification(EventType.UpdateLobby, this, _roomList);
     }
 
     public override void OnCreatedRoom()
     {
         Debug.Log("[NetworkManager] OnCreatedRoom()");
 
-        EventManager.instance.PostNotification(EVENT_TYPE.CREATE_ROOM_SUCCESS, this, null);
+        EventManager.instance.PostNotification(EventType.CreateRoomSuccess, this, null);
         PhotonNetwork.CurrentRoom.SetCustomProperties(new Hashtable() { { "RoomStatus", "Waiting" }, { "ReadyPlayerCnt", 0 }, { "CharacterSelectedCnt", 0 } });
     }
 
     public override void OnCreateRoomFailed(short returnCode, string message)
     {
         Debug.LogWarningFormat("[NetworkManager] OnCreatedRoomFailed() : {0} , {1}", returnCode, message);
-        EventManager.instance.PostNotification(EVENT_TYPE.CREATE_ROOM_FAILURE, this, null);
+        EventManager.instance.PostNotification(EventType.CreateRoomFailure, this, null);
     }
 
     public override void OnLeftRoom()
     {
         Debug.Log("[NetworkManager] OnLeftRoom()");
-        EventManager.instance.PostNotification(EVENT_TYPE.LEFT_ROOM_SUCCESS, this, null);
+        EventManager.instance.PostNotification(EventType.LeftRoomSuccess, this, null);
     }
 
     public override void OnJoinedRoom()
     {
         Debug.Log("[NetworkManager] OnJoinedRoom()");
-        EventManager.instance.PostNotification(EVENT_TYPE.JOIN_ROOM_SUCCESS, this, null);
+        EventManager.instance.PostNotification(EventType.JoinRoomSuccess, this, null);
     }
 
     public override void OnJoinRoomFailed(short returnCode, string message)
     {
         Debug.LogWarningFormat("[NetworkManager] OnJoinRoomFailed() : {0} , {1}", returnCode, message);
-        EventManager.instance.PostNotification(EVENT_TYPE.JOIN_ROOM_FAILURE, this, null);
+        EventManager.instance.PostNotification(EventType.JoinRoomFailure, this, null);
     }
 
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
         Debug.Log("[NetworkManager] OnPlayerEnteredRoom()");
-        EventManager.instance.PostNotification(EVENT_TYPE.CLIENT_JOIN_ROOM, this, newPlayer);
+        EventManager.instance.PostNotification(EventType.ClientJoinRoom, this, newPlayer);
     }
 
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
         Debug.Log("[NetworkManager] OnPlayerLeftRoom()");
-        EventManager.instance.PostNotification(EVENT_TYPE.CLIENT_LEFT_ROOM, this, null);
+        EventManager.instance.PostNotification(EventType.ClientLeftRoom, this, null);
     }
 
     public override void OnMasterClientSwitched(Player newMasterClient)
@@ -154,7 +154,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         {
             Hashtable _hash = new Hashtable() { { "ReadyPlayerCnt", 0 } };
             PhotonNetwork.CurrentRoom.SetCustomProperties(_hash);
-            EventManager.instance.PostNotification(EVENT_TYPE.HOST_LEFT_ROOM, this, PhotonNetwork.CurrentRoom.Name);
+            EventManager.instance.PostNotification(EventType.HostLeftRoom, this, PhotonNetwork.CurrentRoom.Name);
         }
     }
 
@@ -165,9 +165,9 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         {
             int readyPlayerCnt = (int)propertiesThatChanged["ReadyPlayerCnt"];
             if (readyPlayerCnt == 0)
-                EventManager.instance.PostNotification(EVENT_TYPE.CLIENT_NOT_READY, this, null);
+                EventManager.instance.PostNotification(EventType.ClientNotReady, this, null);
             else if (readyPlayerCnt == 1)
-                EventManager.instance.PostNotification(EVENT_TYPE.CLIENT_READY, this, null);
+                EventManager.instance.PostNotification(EventType.ClientReady, this, null);
             else
                 Debug.LogError("[NetworkManager] OnRoomPropertiesUpdate() / RoomCustomProperty - Wrong ReadyPlayerCnt");
         }
@@ -176,7 +176,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         {
             string roomStatus = (string)propertiesThatChanged["RoomStatus"];
             if (roomStatus == "Waiting")
-                EventManager.instance.PostNotification(EVENT_TYPE.EXIT_GAME, this, null);
+                EventManager.instance.PostNotification(EventType.ExitGame, this, null);
             else if (roomStatus == "Gaming")
             {
                 // Set usernames
@@ -184,7 +184,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
                 p1_username = player1.NickName;
                 p2_username = player1.GetNext().NickName;
 
-                EventManager.instance.PostNotification(EVENT_TYPE.START_GAME, this, null);
+                EventManager.instance.PostNotification(EventType.EnterCharacterSelectionPhase, this, null);
                 PhotonNetwork.CurrentRoom.IsOpen = false;
             }
             else
@@ -195,7 +195,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         {
             int readyPlayerCnt = (int)propertiesThatChanged["CharacterSelectedCnt"];
             if (readyPlayerCnt == 2)
-                EventManager.instance.PostNotification(EVENT_TYPE.ENTER_CARD_SELECTION_PHASE, this, null);
+                EventManager.instance.PostNotification(EventType.EnterCardSelectionPhase, this, null);
         }
 
     }
@@ -227,10 +227,10 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         PhotonNetwork.LoadLevel(level);
     }
 
-    public CHARACTER_TYPE GetEnemyCharacter()
+    public CharacterType GetEnemyCharacter()
     {
-        Debug.Log("[NetworkManager] GetEnemyCharacter : " + (CHARACTER_TYPE)(PhotonNetwork.LocalPlayer.GetNext().CustomProperties["Character"]));
-        return (CHARACTER_TYPE)(PhotonNetwork.LocalPlayer.GetNext().CustomProperties["Character"]);
+        Debug.Log("[NetworkManager] GetEnemyCharacter : " + (CharacterType)(PhotonNetwork.LocalPlayer.GetNext().CustomProperties["Character"]));
+        return (CharacterType)(PhotonNetwork.LocalPlayer.GetNext().CustomProperties["Character"]);
     }
     #endregion
 
@@ -268,7 +268,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         {
             Debug.LogError("[NetworkManager] CreateRoom() failed : Too many rooms.");
 
-            EventManager.instance.PostNotification(EVENT_TYPE.CREATE_ROOM_FAILURE, this, null);
+            EventManager.instance.PostNotification(EventType.CreateRoomFailure, this, null);
         }
     }
 
@@ -336,7 +336,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public void ExitGame()
     {
-        Hashtable _hash = new Hashtable() { { "RoomStatus", "Waiting" } }; // EVENT_TYPE.EXIT_GAME
+        Hashtable _hash = new Hashtable() { { "RoomStatus", "Waiting" } }; // Invoke EventType.ExitGame
         PhotonNetwork.CurrentRoom.SetCustomProperties(_hash);
     }
     #endregion

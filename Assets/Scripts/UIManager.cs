@@ -16,12 +16,12 @@ public class UIManager : MonoBehaviour
     private GameObject exitPanel;
 
     [HideInInspector]
-    public bool b_exitPanelActivated;
+    public bool isExitPanelActivated;
     [HideInInspector]
-    public bool b_networkLoadingPanelActivated;
+    public bool isNetworkLoadingPanelActivated;
 
-    public Button btn_resolution_1920;
-    public Button btn_resolution_960;
+    public Button Resolution1920Button;
+    public Button Resolution960Button;
 
     #endregion
 
@@ -39,15 +39,15 @@ public class UIManager : MonoBehaviour
                 Destroy(this.gameObject);
         }
 
-        btn_resolution_1920.onClick.AddListener(() => SetResolution(1920, 1080));
-        btn_resolution_960.onClick.AddListener(() => SetResolution(960, 540));
+        Resolution1920Button.onClick.AddListener(() => SetResolution(1920, 1080));
+        Resolution960Button.onClick.AddListener(() => SetResolution(960, 540));
     }
 
     private void Start()
     {
         Debug.Log("[UIManager] Start");
-        b_exitPanelActivated = false;
-        b_networkLoadingPanelActivated = false;
+        isExitPanelActivated = false;
+        isNetworkLoadingPanelActivated = false;
 
         if(networkLoadingPanel == null)
             networkLoadingPanel = Instantiate(Resources.Load("Prefabs/Panel_Loading")) as GameObject;

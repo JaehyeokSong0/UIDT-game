@@ -49,7 +49,7 @@ public class CharacterSelection : MonoBehaviour, IListener
         selectCharBtn.onClick.AddListener(SelectCharacter);
         deselectCharBtn.onClick.AddListener(DeselectCharacter);
 
-        EventManager.instance.AddListener(EVENT_TYPE.ENTER_CARD_SELECTION_PHASE, this);
+        EventManager.instance.AddListener(EventType.EnterCardSelectionPhase, this);
     }
 
     private void Start()
@@ -60,34 +60,34 @@ public class CharacterSelection : MonoBehaviour, IListener
         isReady = false;
     }
 
-    public void OnEvent(EVENT_TYPE event_type, Component sender, object param = null)
+    public void OnEvent(EventType eventType, Component sender, object param = null)
     {
-        Debug.LogFormat("[CharacterSelection] OnEvent() / EVENT : {0}, Sender : {1}, Param : {2} ", event_type, sender.gameObject.name.ToString(), param);
+        Debug.LogFormat("[CharacterSelection] OnEvent() / EVENT : {0}, Sender : {1}, Param : {2} ", eventType, sender.gameObject.name.ToString(), param);
 
-        switch (event_type)
+        switch (eventType)
         {
-            case EVENT_TYPE.ENTER_CARD_SELECTION_PHASE:
+            case EventType.EnterCardSelectionPhase:
                 Debug.Log("[CharacterSelection] (E)ENTER_CARD_SELECTION_PHASE");
                 EnterCardSelectionPhase();
                 break;
         }
     }
-    public void SelectCharacter_UI(CHARACTER_TYPE character)
+    public void SelectCharacter_UI(CharacterType character)
     {
         Debug.Log("[CharacterSelection] SelectCharacter_UI : " + character.ToString());
 
         switch (character)
         {
-            case CHARACTER_TYPE.BERSERKER:
+            case CharacterType.Berserker:
                 MoveCamera(berserkerPos, berserkerRot);
                 break;
-            case CHARACTER_TYPE.MAGE:
+            case CharacterType.Mage:
                 MoveCamera(magePos, mageRot);
                 break;
-            case CHARACTER_TYPE.ROGUE:
+            case CharacterType.Rogue:
                 MoveCamera(roguePos, rogueRot);
                 break;
-            case CHARACTER_TYPE.WARRIOR:
+            case CharacterType.Warrior:
                 MoveCamera(warriorPos, warriorRot);
                 break;
         }
@@ -108,15 +108,15 @@ public class CharacterSelection : MonoBehaviour, IListener
             return;
         }
 
-        CHARACTER_TYPE currCharacter;
+        CharacterType currCharacter;
         if (currUI == berserkerUI)
-            currCharacter = CHARACTER_TYPE.BERSERKER;
+            currCharacter = CharacterType.Berserker;
         else if (currUI == mageUI)
-            currCharacter = CHARACTER_TYPE.MAGE;
+            currCharacter = CharacterType.Mage;
         else if (currUI == rogueUI)
-            currCharacter = CHARACTER_TYPE.ROGUE;
+            currCharacter = CharacterType.Rogue;
         else if (currUI = warriorUI)
-            currCharacter = CHARACTER_TYPE.WARRIOR;
+            currCharacter = CharacterType.Warrior;
         else
         {
             Debug.LogError("[CharacterSelection] SelectCharacter : Unexpected Error");
@@ -157,25 +157,25 @@ public class CharacterSelection : MonoBehaviour, IListener
         StartCoroutine(mainCam.GetComponent<CameraManager>().LerpCamera(pos, rot));
     }
 
-    void ShowSelectUI(CHARACTER_TYPE character)
+    void ShowSelectUI(CharacterType character)
     {
         selectCharBtn.gameObject.SetActive(true);
         deselectCharBtn.gameObject.SetActive(true);
         switch (character)
         {
-            case CHARACTER_TYPE.BERSERKER:
+            case CharacterType.Berserker:
                 berserkerUI.gameObject.SetActive(true);
                 currUI = berserkerUI;
                 break;
-            case CHARACTER_TYPE.MAGE:
+            case CharacterType.Mage:
                 mageUI.gameObject.SetActive(true);
                 currUI = mageUI;
                 break;
-            case CHARACTER_TYPE.ROGUE:
+            case CharacterType.Rogue:
                 rogueUI.gameObject.SetActive(true);
                 currUI = rogueUI;
                 break;
-            case CHARACTER_TYPE.WARRIOR:
+            case CharacterType.Warrior:
                 warriorUI.gameObject.SetActive(true);
                 currUI = warriorUI;
                 break;

@@ -10,14 +10,15 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.TextCore.Text;
 using UnityEngine.UI;
+using UnityEngine.Serialization;
 //using static UnityEditor.PlayerSettings;
 
-public enum GAME_RESULT
+public enum GameResult
 {
-    CONTINUE,
-    PLAYER1_WIN,
-    PLAYER2_WIN,
-    DRAW,
+    Continue,
+    Player1Win,
+    Player2Win,
+    Draw,
 }
 
 public class BattleManager : MonoBehaviour, IListener
@@ -25,7 +26,7 @@ public class BattleManager : MonoBehaviour, IListener
     public class Player
     {
         #region Variable
-        CHARACTER_TYPE character;
+        CharacterType character;
         int hp;
         int en;
         int[] pos = new int[2];
@@ -33,7 +34,7 @@ public class BattleManager : MonoBehaviour, IListener
         GameObject characterGO; // Character GameObject
         #endregion
         #region Property
-        public CHARACTER_TYPE Character
+        public CharacterType Character
         {
             get { return character; }
             set { character = value; }
@@ -69,7 +70,7 @@ public class BattleManager : MonoBehaviour, IListener
             set { characterGO = value; }
         }
         #endregion
-        public Player(CHARACTER_TYPE character, int hp, int en, int[] pos, Queue<Card> cards)
+        public Player(CharacterType character, int hp, int en, int[] pos, Queue<Card> cards)
         {
             this.character = character;
             this.hp = hp;
@@ -99,16 +100,17 @@ public class BattleManager : MonoBehaviour, IListener
     };
 
 
-    const int MAX_HP = 100;
-    const int MAX_EN = 100;
-    const int MIN_WIDTH = 1;
-    const int MAX_WIDTH = 4;
-    const int MIN_HEIGHT = 1;
-    const int MAX_HEIGHT = 3;
+    const int maxHP = 100;
+    const int maxEN = 100;
+    const int minWidth = 1;
+    const int maxWidth = 4;
+    const int minHeight = 1;
+    const int maxHeight = 3;
 
     Player[] player = new Player[2];
 
     #region UI
+    [Header("Player1 UI")]
     public TMP_Text p1_username;
     public TMP_Text p1_character;
     public Image p1_HP_img;
@@ -116,9 +118,12 @@ public class BattleManager : MonoBehaviour, IListener
     public Image p1_EN_img;
     public TMP_Text p1_EN_text;
     public CardUI p1_card;
-    public Button scene_trasition_button;
-    public Button exit_game_button;
+    [FormerlySerializedAs("scene_trasition_button")]
+    public Button EnterCardSelectionPhaseButton;
+    [FormerlySerializedAs("exit_game_button")]
+    public Button ExitGameButton;
 
+    [Header("Player2 UI")]
     public TMP_Text p2_username;
     public TMP_Text p2_character;
     public Image p2_HP_img;
@@ -133,22 +138,22 @@ public class BattleManager : MonoBehaviour, IListener
 
     private void Awake()
     {
-        scene_trasition_button.onClick.AddListener(EnterCardSelectionPhase);
-        exit_game_button.onClick.AddListener(Req_ExitGame);
+        EnterCardSelectionPhaseButton.onClick.AddListener(EnterCardSelectionPhase);
+        ExitGameButton.onClick.AddListener(TryExitGame);
 
-        EventManager.instance.AddListener(EVENT_TYPE.EXIT_GAME, this);
-        EventManager.instance.AddListener(EVENT_TYPE.LEFT_ROOM_SUCCESS, this);
+        EventManager.instance.AddListener(EventType.ExitGame, this);
+        EventManager.instance.AddListener(EventType.LeftRoomSuccess, this);
     }
 
     private void Start()
     {
         Debug.Log("[BattleManager] Start");
-        scene_trasition_button.gameObject.SetActive(false);
-        exit_game_button.gameObject.SetActive(false);
+        EnterCardSelectionPhaseButton.gameObject.SetActive(false);
+        ExitGameButton.gameObject.SetActive(false);
 
         // Init player status
-        player[0] = new Player(GameManager.instance.p1_character, GameManager.instance.p1_HP, GameManager.instance.p1_EN, GameManager.instance.p1_pos, GameManager.instance.q_p1_card);
-        player[1] = new Player(GameManager.instance.p2_character, GameManager.instance.p2_HP, GameManager.instance.p2_EN, GameManager.instance.p2_pos, GameManager.instance.q_p2_card);
+        player[0] = new Player(GameManager.instance.p1_character, GameManager.instance.p1_HP, GameManager.instance.p1_EN, GameManager.instance.p1_pos, GameManager.instance.p1_cardQueue);
+        player[1] = new Player(GameManager.instance.p2_character, GameManager.instance.p2_HP, GameManager.instance.p2_EN, GameManager.instance.p2_pos, GameManager.instance.p2_cardQueue);
         for (int i = 0; i < 2; i++)
             player[i].CharacterGO = InstantiateCharacter(i, player[i].Character);
 
@@ -162,19 +167,19 @@ public class BattleManager : MonoBehaviour, IListener
         StartCoroutine(EnterBattlePhase());
     }
 
-    public void OnEvent(EVENT_TYPE event_type, Component sender, object param = null)
+    public void OnEvent(EventType eventType, Component sender, object param = null)
     {
-        Debug.LogFormat("[BattleManager] OnEvent() / EVENT : {0}, Sender : {1}, Param : {2} ", event_type, sender.gameObject.name.ToString(), param);
+        Debug.LogFormat("[BattleManager] OnEvent() / EVENT : {0}, Sender : {1}, Param : {2} ", eventType, sender.gameObject.name.ToString(), param);
 
-        switch (event_type)
+        switch (eventType)
         {
-            case EVENT_TYPE.EXIT_GAME:
+            case EventType.ExitGame:
                 Debug.Log("[BattleManager] (E)EXIT_GAME");
-                ExitGame_Success();
+                ExitGameSuccess();
                 break;
-            case EVENT_TYPE.LEFT_ROOM_SUCCESS:
+            case EventType.LeftRoomSuccess:
                 Debug.Log("[BattleManager] (E)LEFT_ROOM_SUCCESS");
-                LeaveRoom_Success();
+                LeaveRoomSuccess();
                 break;
         }
     }
@@ -206,10 +211,10 @@ public class BattleManager : MonoBehaviour, IListener
         GameManager.instance.p2_pos = player[1].Pos;
     }
 
-    private GameObject InstantiateCharacter(int playerIdx, CHARACTER_TYPE character)
+    private GameObject InstantiateCharacter(int playerIdx, CharacterType character)
     {
         Debug.Log("[BattleManager] InstantiateCharacter");
-        if (character == CHARACTER_TYPE.COMMON)
+        if (character == CharacterType.Common)
         {
             Debug.LogError("[BattleManager] InstatiateCharacter : Cannot instantiate \"common\"");
             return null;
@@ -240,7 +245,7 @@ public class BattleManager : MonoBehaviour, IListener
         while(player[0].Cards.Count > 0)
             yield return StartCoroutine(TakeTurn(player[0].Cards.Dequeue(), player[1].Cards.Dequeue()));
 
-        scene_trasition_button.gameObject.SetActive(true);
+        EnterCardSelectionPhaseButton.gameObject.SetActive(true);
     }
 
     void EnterCardSelectionPhase()
@@ -252,17 +257,17 @@ public class BattleManager : MonoBehaviour, IListener
             NetworkManager.instance.LoadScene(3);
     }
 
-    void Req_ExitGame()
+    void TryExitGame()
     {
         NetworkManager.instance.ExitGame();
     }
 
-    void ExitGame_Success()
+    void ExitGameSuccess()
     {
         PhotonNetwork.LeaveRoom();
     }
 
-    void LeaveRoom_Success()
+    void LeaveRoomSuccess()
     {
         //NetworkManager.instance.LoadScene(1);
         GameManager.instance.LoadSceneByIndex(1);
@@ -275,7 +280,7 @@ public class BattleManager : MonoBehaviour, IListener
     // 공격은 2순위, 그 외는 1순위
     {
         Debug.Log("[BattleManager] GetPriority");
-        return (card.cardType == CARD_TYPE.ATTACK) ? 2 : 1;
+        return (card.cardType == CardType.Attack) ? 2 : 1;
     }
 
     // 이긴 Player 반환
@@ -301,12 +306,12 @@ public class BattleManager : MonoBehaviour, IListener
             yield return new WaitForSeconds(5.0f);
         }
 
-        if (CheckTurnResult() != GAME_RESULT.CONTINUE) // 게임이 끝났다면
+        if (CheckTurnResult() != GameResult.Continue) // 게임이 끝났다면
         {
             Debug.Log("GAME END");
             InsertLog(CheckTurnResult().ToString()); // 게임결과 띄우고 나가기 버튼 활성화 -> 클릭 : 로비로 이동
             StopAllCoroutines();
-            exit_game_button.gameObject.SetActive(true);
+            ExitGameButton.gameObject.SetActive(true);
         }
     }
 
@@ -334,11 +339,11 @@ public class BattleManager : MonoBehaviour, IListener
 
         switch (playerCard.cardType)
         {
-            case CARD_TYPE.MOVE:
+            case CardType.Move:
                 InsertLog("[MOVE] " + username + " : " + playerCard.cardName);
                 MovePos(playerIdx, playerCard);
                 break;
-            case CARD_TYPE.ATTACK:
+            case CardType.Attack:
                 InsertLog("[ATTACK] " + username + " : " + playerCard.cardName);
                 Queue<int[]> attackRange = new Queue<int[]>();
                 GetAttackRange(player[playerIdx].Pos, playerCard.attackAttr, ref attackRange);
@@ -354,13 +359,13 @@ public class BattleManager : MonoBehaviour, IListener
 
                 StartCoroutine(player[playerIdx].CharacterGO.GetComponent<CharacterAnimator>().Attack()); // 공격에 실패하더라도 모션은 나와야 함
                 break;
-            case CARD_TYPE.GUARD:
+            case CardType.Guard:
                 InsertLog("[GUARD] " + username + " : " + playerCard.cardName);
                 StartCoroutine(player[playerIdx].CharacterGO.GetComponent<CharacterAnimator>().Guard());
                 break;
-            case CARD_TYPE.RESTORE:
+            case CardType.Restore:
                 int _en = player[playerIdx].En;
-                player[playerIdx].En = (player[playerIdx].En + playerCard.value <= MAX_EN) ? (player[playerIdx].En + playerCard.value) : MAX_EN;
+                player[playerIdx].En = (player[playerIdx].En + playerCard.value <= maxEN) ? (player[playerIdx].En + playerCard.value) : maxEN;
                 InsertLog("[RESTORE] " + username + " / (EN) " + _en.ToString() + " -> " + player[playerIdx].En.ToString());
                 StartCoroutine(player[playerIdx].CharacterGO.GetComponent<CharacterAnimator>().Restore());
                 break;
@@ -372,7 +377,7 @@ public class BattleManager : MonoBehaviour, IListener
     // MAXWIDTH = 4, MAXHEIGHT = 3
     void MovePos(int playerIdx, Card card)
     {
-        if (card.cardType != CARD_TYPE.MOVE)
+        if (card.cardType != CardType.Move)
         {
             Debug.LogError("[BattleManager] MovePos : Wrong card type.");
             return;
@@ -386,17 +391,17 @@ public class BattleManager : MonoBehaviour, IListener
 
         switch (card.moveDir)
         {
-            case MOVE_DIR.LEFT:
-                player[playerIdx].Pos[0] = (posX - moveVal >= 1) ? posX - moveVal : MIN_WIDTH;
+            case MoveDirection.Left:
+                player[playerIdx].Pos[0] = (posX - moveVal >= 1) ? posX - moveVal : minWidth;
                 break;
-            case MOVE_DIR.RIGHT:
-                player[playerIdx].Pos[0] = (posX + moveVal <= MAX_WIDTH) ? posX + moveVal : MAX_WIDTH;
+            case MoveDirection.Right:
+                player[playerIdx].Pos[0] = (posX + moveVal <= maxWidth) ? posX + moveVal : maxWidth;
                 break;
-            case MOVE_DIR.UP:
-                player[playerIdx].Pos[1] = (posY + moveVal <= MAX_HEIGHT) ? posY + moveVal : MAX_HEIGHT;
+            case MoveDirection.Up:
+                player[playerIdx].Pos[1] = (posY + moveVal <= maxHeight) ? posY + moveVal : maxHeight;
                 break;
-            case MOVE_DIR.DOWN:
-                player[playerIdx].Pos[1] = (posY - moveVal >= 1) ? posY - moveVal : MIN_HEIGHT;
+            case MoveDirection.Down:
+                player[playerIdx].Pos[1] = (posY - moveVal >= 1) ? posY - moveVal : minHeight;
                 break;
         }
         InsertLog("[MOVE] " + username + " : From (" + posX.ToString() + "," + posY.ToString() + ") To (" + player[playerIdx].Pos[0].ToString() + "," + player[playerIdx].Pos[1].ToString() + ")");
@@ -430,34 +435,34 @@ public class BattleManager : MonoBehaviour, IListener
                 switch (i + 1)
                 {
                     case 1: // LEFT, UP 
-                        retX = (posX - 1 >= MIN_WIDTH) ? (posX - 1) : -1;
-                        retY = (posY + 1 <= MAX_HEIGHT) ? (posY + 1) : -1;
+                        retX = (posX - 1 >= minWidth) ? (posX - 1) : -1;
+                        retY = (posY + 1 <= maxHeight) ? (posY + 1) : -1;
                         break;
                     case 2: // UP
-                        retY = (posY + 1 <= MAX_HEIGHT) ? (posY + 1) : -1;
+                        retY = (posY + 1 <= maxHeight) ? (posY + 1) : -1;
                         break;
                     case 3: // RIGHT, UP
-                        retX = (posX + 1 <= MAX_WIDTH) ? (posX + 1) : -1;
-                        retY = (posY + 1 <= MAX_HEIGHT) ? (posY + 1) : -1;
+                        retX = (posX + 1 <= maxWidth) ? (posX + 1) : -1;
+                        retY = (posY + 1 <= maxHeight) ? (posY + 1) : -1;
                         break;
                     case 4: // LEFT
-                        retX = (posX - 1 >= MIN_WIDTH) ? (posX - 1) : -1;
+                        retX = (posX - 1 >= minWidth) ? (posX - 1) : -1;
                         break;
                     case 5: // CENTER
                         break;
                     case 6: // RIGHT
-                        retX = (posX + 1 <= MAX_WIDTH) ? (posX + 1) : -1;
+                        retX = (posX + 1 <= maxWidth) ? (posX + 1) : -1;
                         break;
                     case 7: // LEFT, DOWN
-                        retX = (posX - 1 >= MIN_WIDTH) ? (posX - 1) : -1;
-                        retY = (posY - 1 >= MIN_HEIGHT) ? (posY - 1) : -1;
+                        retX = (posX - 1 >= minWidth) ? (posX - 1) : -1;
+                        retY = (posY - 1 >= minHeight) ? (posY - 1) : -1;
                         break;
                     case 8: // DOWN
-                        retY = (posY - 1 >= MIN_HEIGHT) ? (posY - 1) : -1;
+                        retY = (posY - 1 >= minHeight) ? (posY - 1) : -1;
                         break;
                     case 9: // RIGHT, DOWN
-                        retX = (posX + 1 <= MAX_WIDTH) ? (posX + 1) : -1;
-                        retY = (posY - 1 >= MIN_HEIGHT) ? (posY - 1) : -1;
+                        retX = (posX + 1 <= maxWidth) ? (posX + 1) : -1;
+                        retY = (posY - 1 >= minHeight) ? (posY - 1) : -1;
                         break;
                 }
 
@@ -476,7 +481,7 @@ public class BattleManager : MonoBehaviour, IListener
         Debug.Log("[BattleManager] Attack");
         int damage;
         int _hp = player[attackedPlayerIdx].Hp;
-        if (defenderCard.cardType == CARD_TYPE.GUARD)
+        if (defenderCard.cardType == CardType.Guard)
             damage = (attackerCard.value - defenderCard.value >= 0) ? (attackerCard.value - defenderCard.value) : 0;
         else
             damage = attackerCard.value;
@@ -499,7 +504,7 @@ public class BattleManager : MonoBehaviour, IListener
         rangePainted[idx].SetActive(false);
     }
 
-    GAME_RESULT CheckTurnResult()
+    GameResult CheckTurnResult()
     {
         Debug.Log("[BattleManager] CheckTurnResult");
         int p1_hp = player[0].Hp;
@@ -514,35 +519,35 @@ public class BattleManager : MonoBehaviour, IListener
             StartCoroutine(player[1].CharacterGO.GetComponent<CharacterAnimator>().Die());
 
         if ((p1_hp > 0) && (p2_hp > 0))
-            return GAME_RESULT.CONTINUE;
+            return GameResult.Continue;
         else if ((p1_hp == 0) && (p2_hp == 0))
-            return GAME_RESULT.DRAW;
+            return GameResult.Draw;
         else if (p1_hp == 0)
-            return GAME_RESULT.PLAYER2_WIN;
+            return GameResult.Player2Win;
         else
-            return GAME_RESULT.PLAYER1_WIN;
+            return GameResult.Player1Win;
     }
 
     // fromPos의 Character가 바라봐야할 방향 반환
-    MOVE_DIR GetDirection(int[] fromPos, int[] toPos, int playerIdx)
+    MoveDirection GetDirection(int[] fromPos, int[] toPos, int playerIdx)
     {
         Debug.Log("[BattleManager] GetDirection");
         if (fromPos[0] < toPos[0])
-            return MOVE_DIR.RIGHT;
+            return MoveDirection.Right;
         else if (fromPos[0] > toPos[0])
-            return MOVE_DIR.LEFT;
+            return MoveDirection.Left;
         else if (fromPos[1] > toPos[1])
-            return MOVE_DIR.DOWN;
+            return MoveDirection.Down;
         else if (fromPos[1] < toPos[1])
-            return MOVE_DIR.UP;
+            return MoveDirection.Up;
         else
-            return (playerIdx == 0) ? MOVE_DIR.RIGHT : MOVE_DIR.LEFT;
+            return (playerIdx == 0) ? MoveDirection.Right : MoveDirection.Left;
     }
 
-    void SetCharacterDirection(GameObject character, MOVE_DIR dir)
+    void SetCharacterDirection(GameObject character, MoveDirection direction)
     {
         Debug.Log("[BattleManager] SetCharacterDirection");
-        character.transform.rotation = Quaternion.Euler(rotations[(int)dir / 2]);
+        character.transform.rotation = Quaternion.Euler(rotations[(int)direction / 2]);
     }
 
     void InsertLog(string text)

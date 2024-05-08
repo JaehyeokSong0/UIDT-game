@@ -14,19 +14,19 @@ public class ExitPanel : MonoBehaviour
 
     public void ActivateExitPanel()
     {
-        if (UIManager.instance.b_exitPanelActivated == false)
+        if (UIManager.instance.isExitPanelActivated == false)
         {
             gameObject.SetActive(true);
-            UIManager.instance.b_exitPanelActivated = true;
+            UIManager.instance.isExitPanelActivated = true;
         }
     }
 
     public void DeactivateExitPanel()
     {
-        if (UIManager.instance.b_exitPanelActivated == true)
+        if (UIManager.instance.isExitPanelActivated == true)
         {
             gameObject.SetActive(false);
-            UIManager.instance.b_exitPanelActivated = false;
+            UIManager.instance.isExitPanelActivated = false;
         }
     }
 }
