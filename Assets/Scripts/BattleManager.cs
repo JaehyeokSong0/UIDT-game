@@ -273,13 +273,11 @@ public class BattleManager : MonoBehaviour, IListener
     // Higher priority returns lower numbers
     // [Attack] 2nd priority / [Else] 1st priority
     {
-        Debug.Log("[BattleManager] GetPriority");
         return (card.cardType == CardType.Attack) ? 2 : 1;
     }
 
     IEnumerator TakeTurn(Card p1Card, Card p2Card)
     {
-        Debug.Log("[BattleManager] TakeTurn");
         InsertLog("---- Turn " + (3 - player[0].Cards.Count) + " ----");
         int p1Priority = GetPriority(p1Card);
         int p2Priority = GetPriority(p2Card);
@@ -301,7 +299,6 @@ public class BattleManager : MonoBehaviour, IListener
 
         if (CheckTurnResult() != GameResult.Continue) // Game End
         {
-            Debug.Log("GAME END");
             InsertLog(CheckTurnResult().ToString()); // Show game result and activate exit(to lobby) button
             StopAllCoroutines();
             _exitGameButton.gameObject.SetActive(true);
@@ -310,8 +307,6 @@ public class BattleManager : MonoBehaviour, IListener
 
     void Action(int playerIdx, Card P1Card, Card P2Card)
     {
-        Debug.Log("[BattleManager] Action : " + playerIdx);
-
         Card playerCard = (playerIdx == 0) ? P1Card : P2Card;
         Card enemyCard = (playerIdx == 0) ? P2Card : P1Card;
         int enemyIdx = (playerIdx == 0) ? 1 : 0;
@@ -379,7 +374,6 @@ public class BattleManager : MonoBehaviour, IListener
         int posY = player[playerIdx].Pos[1];
         int moveVal = card.value;
         string username = (playerIdx == 0) ? NetworkManager.Instance.P1_username : NetworkManager.Instance.P2_username;
-        Debug.Log("[BattleManager] MovePos : " + posX + " , " + posY);
 
         switch (card.moveDir)
         {
@@ -419,7 +413,6 @@ public class BattleManager : MonoBehaviour, IListener
     {
         int posX = playerPos[0];
         int posY = playerPos[1];
-        Debug.Log("[BattleManager] GetAttackRange : " + posX + "," + posY);
 
         for (int i = 0; i < 9; i++)
         {
@@ -464,7 +457,6 @@ public class BattleManager : MonoBehaviour, IListener
                     continue;
 
                 int[] retPos = { retX, retY };
-                Debug.Log("[BattleManager] GetAttackRange / Enqueued : " + retX + "," + retY);
                 attackRange.Enqueue(retPos);
             }
         }
@@ -472,7 +464,6 @@ public class BattleManager : MonoBehaviour, IListener
 
     void Attack(int attackedPlayerIdx, Card attackerCard, Card defenderCard)
     {
-        Debug.Log("[BattleManager] Attack");
         int damage;
         int _hp = player[attackedPlayerIdx].Hp;
         if (defenderCard.cardType == CardType.Guard)
@@ -500,7 +491,6 @@ public class BattleManager : MonoBehaviour, IListener
 
     GameResult CheckTurnResult()
     {
-        Debug.Log("[BattleManager] CheckTurnResult");
         int p1_hp = player[0].Hp;
         int p2_hp = player[1].Hp; ;
 
@@ -525,7 +515,6 @@ public class BattleManager : MonoBehaviour, IListener
     // Return direction of fromPos' Character
     MoveDirection GetDirection(int[] fromPos, int[] toPos, int playerIdx)
     {
-        Debug.Log("[BattleManager] GetDirection");
         if (fromPos[0] < toPos[0])
             return MoveDirection.Right;
         else if (fromPos[0] > toPos[0])
@@ -540,7 +529,6 @@ public class BattleManager : MonoBehaviour, IListener
 
     void SetCharacterDirection(GameObject character, MoveDirection direction)
     {
-        Debug.Log("[BattleManager] SetCharacterDirection");
         character.transform.rotation = Quaternion.Euler(rotations[(int)direction / 2]);
     }
 

@@ -69,9 +69,6 @@ public class LobbyManager : MonoBehaviour, IListener
     {
         Debug.Log("[LobbyManager] UpdateLobby() / Current RoomCnt : " + roomList.Count);
 
-        foreach(var room in roomList)
-            Debug.Log(room.Key + ": " + room.Value);
-
         if (roomList == null)
             return;
 
