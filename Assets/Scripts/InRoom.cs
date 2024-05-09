@@ -89,12 +89,8 @@ public class InRoom : MonoBehaviour, IListener
 
     public void SetInRoom()
     {
-        // Debug.Log("[InRoom] SetInRoom()");
-
         Player player1 = PhotonNetwork.MasterClient;
         Player player2 = null;
-
-        Debug.Log("[InRoom] SetInRoom() / Current Room Player : " + PhotonNetwork.CurrentRoom.Players.Count);
 
         if (PhotonNetwork.CurrentRoom.Players.Count == 2) // JoinRoom 
             player2 = PhotonNetwork.LocalPlayer;

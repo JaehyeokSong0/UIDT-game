@@ -25,8 +25,6 @@ public class CardUI : MonoBehaviour
     }
     private void SetCardUI()
     {
-        Debug.Log("[CardUI] SetCardUI : " + CardInfo.cardName);
-
         CardName.text = CardInfo.cardName;
         Description.text = SetDescription();
         Value.text = CardInfo.value.ToString();

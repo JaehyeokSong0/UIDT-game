@@ -219,8 +219,6 @@ public class GameManager : MonoBehaviour, IPunObservable
         else
             Debug.LogError("[GameManager] SetCardRPC : Invalid playerNum" + playerNum);
 
-        Debug.Log("[GameManager] SetCardRPC / sum of q count (정상 작동 시 6): " + (p1_cardQueue.Count+ p2_cardQueue.Count));
-
         if ((p1_cardQueue.Count + p2_cardQueue.Count) == 6)
         {
             if (NetworkManager.Instance.IsMasterClient())

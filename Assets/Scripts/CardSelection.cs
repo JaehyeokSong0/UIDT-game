@@ -177,7 +177,6 @@ public class CardSelection : MonoBehaviour, IListener
 
     public bool CheckSelectValidation(Card card)
     {
-        Debug.Log("[CardSelection] / selectedCardQueue.Count" + _selectedCardQueue.Count);
         // Check queue size validation
         if ((_selectedCardQueue.Count < 0) || (_selectedCardQueue.Count > SelectedCardSize))
         {
@@ -264,7 +263,6 @@ public class CardSelection : MonoBehaviour, IListener
             {
                 Card _card = _selectedCardQueue.Dequeue();
                 _selectedCardQueue.Enqueue(_card);
-                Debug.Log(i + " : "+ _card.cardName);
                 _selectedCardUI[i].SetCard(_card);
                 _selectedCardUI[i].gameObject.SetActive(true);
             }
