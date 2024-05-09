@@ -3190,7 +3190,7 @@ GameObject:
   - component: {fileID: 5815991427697062438}
   - component: {fileID: 6763140037848913439}
   m_Layer: 0
-  m_Name: BERSERKER
+  m_Name: Berserker
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

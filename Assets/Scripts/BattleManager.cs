@@ -45,15 +45,15 @@ public class BattleManager : MonoBehaviour, IListener
     #endregion
     public class Player
     {
-    #region Variable
+        #region Variable
         CharacterType character;
         int hp;
         int en;
         int[] pos = new int[2];
         Queue<Card> cards;
         GameObject characterGO; // Character GameObject
-    #endregion
-    #region Property
+        #endregion
+        #region Property
         public CharacterType Character
         {
             get { return character; }
@@ -89,7 +89,7 @@ public class BattleManager : MonoBehaviour, IListener
             get { return characterGO; }
             set { characterGO = value; }
         }
-    #endregion
+        #endregion
         public Player(CharacterType character, int hp, int en, int[] pos, Queue<Card> cards)
         {
             this.character = character;
@@ -147,16 +147,17 @@ public class BattleManager : MonoBehaviour, IListener
         _exitGameButton.gameObject.SetActive(false);
 
         // Init player status
-        player[0] = new Player(GameManager.Instance.p1_character, GameManager.Instance.p1_HP, GameManager.Instance.p1_EN, GameManager.Instance.p1_pos, GameManager.Instance.p1_cardQueue);
-        player[1] = new Player(GameManager.Instance.p2_character, GameManager.Instance.p2_HP, GameManager.Instance.p2_EN, GameManager.Instance.p2_pos, GameManager.Instance.p2_cardQueue);
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i <= 1; i++)
+        {
+            player[i] = new Player(GameManager.Instance.player[i].Character, GameManager.Instance.player[i].Hp, GameManager.Instance.player[i].En, GameManager.Instance.player[i].Pos, GameManager.Instance.player[i].Cards);
             player[i].CharacterGO = InstantiateCharacter(i, player[i].Character);
+        }
 
         _p1_username.text = NetworkManager.Instance.P1_username;
-        _p1_character.text = GameManager.Instance.p1_character.ToString();
+        _p1_character.text = GameManager.Instance.player[0].Character.ToString();
         _p2_username.text = NetworkManager.Instance.P2_username;
-        _p2_character.text = GameManager.Instance.p2_character.ToString();
-        
+        _p2_character.text = GameManager.Instance.player[1].Character.ToString();
+
         SetUserUI();
 
         StartCoroutine(EnterBattlePhase());
@@ -197,13 +198,12 @@ public class BattleManager : MonoBehaviour, IListener
     {
         Debug.Log("[BattleManager] SetGameStatus");
 
-        GameManager.Instance.p1_HP = player[0].Hp;
-        GameManager.Instance.p1_EN = player[0].En;
-        GameManager.Instance.p1_pos = player[0].Pos;
-
-        GameManager.Instance.p2_HP = player[1].Hp;
-        GameManager.Instance.p2_EN = player[1].En;
-        GameManager.Instance.p2_pos = player[1].Pos;
+        for (int i = 0; i <= 1; i++)
+        {
+            GameManager.Instance.player[i].Hp = player[i].Hp;
+            GameManager.Instance.player[i].En = player[i].En;
+            GameManager.Instance.player[i].Pos = player[i].Pos;
+        }
     }
 
     private GameObject InstantiateCharacter(int playerIdx, CharacterType character)
@@ -217,21 +217,19 @@ public class BattleManager : MonoBehaviour, IListener
 
         string commonPath = "Prefabs/Characters/BattleScene/";
         GameObject _characterGO = Resources.Load(commonPath + character.ToString()) as GameObject;
-        
-        int _startPos = (playerIdx == 0) ? (GameManager.Instance.p1_pos[0] - 1) + (GameManager.Instance.p1_pos[1] - 1) * 4 : (GameManager.Instance.p2_pos[0] - 1) + (GameManager.Instance.p2_pos[1] - 1) * 4;
 
-        int _startRot;
-        if (playerIdx == 0)
-            _startRot = (int)(GetDirection(GameManager.Instance.p1_pos, GameManager.Instance.p2_pos, playerIdx)) / 2; // index : 0,1,2,3 -> UP, LEFT, RIGHT, DOWN
-        else if (playerIdx == 1)
-            _startRot = (int)(GetDirection(GameManager.Instance.p2_pos, GameManager.Instance.p1_pos, playerIdx)) / 2;
-        else
+        int enemyIdx = (playerIdx == 0) ? 1 : 0;
+
+        int startPos = (playerIdx == 0) ? (GameManager.Instance.player[0].Pos[0] - 1) + (GameManager.Instance.player[0].Pos[1] - 1) * 4 : (GameManager.Instance.player[1].Pos[0] - 1) + (GameManager.Instance.player[1].Pos[1] - 1) * 4;
+        int startRot = (int)(GetDirection(GameManager.Instance.player[playerIdx].Pos, GameManager.Instance.player[enemyIdx].Pos, playerIdx)) / 2; // index : 0,1,2,3 -> UP, LEFT, RIGHT, DOWN
+
+        if (!((playerIdx == 0) || (playerIdx == 1)))
         {
-            _startRot = 0;
+            startRot = 0;
             Debug.LogError("[BattleManager] InstantiateCharacter : Wrong playerIdx");
         }
         
-        return Instantiate(_characterGO, positions[playerIdx, _startPos], Quaternion.Euler(rotations[_startRot]));
+        return Instantiate(_characterGO, positions[playerIdx, startPos], Quaternion.Euler(rotations[startRot]));
     }
 
     IEnumerator EnterBattlePhase()

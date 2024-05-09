@@ -18,26 +18,85 @@ public class GameManager : MonoBehaviour, IPunObservable
     [SerializeField]
     private PhotonView _photonView;
 
+    public class Player
+    {
+    #region Variable
+        CharacterType character;
+        int hp;
+        int en;
+        int[] pos = new int[2];
+        Queue<Card> cards;
+        bool isReady;
+    #endregion
+    #region Property
+        public CharacterType Character
+        {
+            get { return character; }
+            set { character = value; }
+        }
+
+        public int Hp
+        {
+            get { return hp; }
+            set { hp = value; }
+        }
+
+        public int En
+        {
+            get { return en; }
+            set { en = value; }
+        }
+
+        public int[] Pos
+        {
+            get { return pos; }
+            set { pos = value; }
+        }
+
+        public Queue<Card> Cards
+        {
+            get { return cards; }
+            set { cards = value; }
+        }
+
+        public bool IsReady
+        {
+            get { return isReady; }
+            set { isReady = value; }
+        }
+     #endregion
+        public Player()
+        {
+            this.isReady = false;
+            this.cards = new Queue<Card>();
+        }
+        public Player(CharacterType character, int hp, int en, int[] pos, Queue<Card> cards)
+        {
+            this.character = character;
+            this.hp = hp;
+            this.en = en;
+            this.pos = pos;
+            this.cards = cards;
+            this.isReady = false;
+        }
+
+        public void PushCard(Card card)
+        {
+            this.cards.Enqueue(card);
+        }
+        public void ClearCardQueue()
+        {
+            this.cards.Clear();
+        }
+    }
+
+    public Player[] player = new Player[2];
     #region GameStatus
     [HideInInspector]
     public CharacterType playerCharacter, enemyCharacter;
     [HideInInspector]
     public int currPlayer;
 
-    [HideInInspector]
-    public int p1_HP, p1_EN, p2_HP, p2_EN;
-    [HideInInspector]
-    public int[] p1_pos = new int[2];
-    [HideInInspector]
-    public int[] p2_pos = new int[2];
-    [HideInInspector]
-    public CharacterType p1_character, p2_character;
-    [HideInInspector]
-    public bool p1_ready, p2_ready;
-    [HideInInspector]
-    public Queue<Card> p1_cardQueue = new Queue<Card>();
-    [HideInInspector]
-    public Queue<Card> p2_cardQueue = new Queue<Card>();
     #endregion
 
     private void Awake()
@@ -52,14 +111,16 @@ public class GameManager : MonoBehaviour, IPunObservable
             if(Instance != this)
                 Destroy(this.gameObject);
         }
-
         _photonView = GetComponent<PhotonView>();
+
+        for (int i = 0; i <= 1; i++)
+            player[i] = new Player();
     }
 
     public void InitGameStatus()
     {
-        p1_cardQueue.Clear();
-        p2_cardQueue.Clear();
+        player[0].ClearCardQueue();
+        player[1].ClearCardQueue();
     }
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
@@ -103,85 +164,46 @@ public class GameManager : MonoBehaviour, IPunObservable
     public void SetEnemyCharacter()
     {
         enemyCharacter = NetworkManager.Instance.GetEnemyCharacter();
-        if (currPlayer == 1)
+        if (currPlayer == 0)
         {
-            p1_character = playerCharacter;
-            p2_character = enemyCharacter;
+            player[0].Character = playerCharacter;
+            player[1].Character = enemyCharacter;
         }
-        else if (currPlayer == 2)
+        else if (currPlayer == 1)
         {
-            p2_character = playerCharacter;
-            p1_character = enemyCharacter;
+            player[1].Character = playerCharacter;
+            player[0].Character = enemyCharacter;
         }
         else
-            Debug.LogError("[GameManager] SetEnemyCharacter : Invalid playerNum");
+            Debug.LogError("[GameManager] SetEnemyCharacter : Invalid playerIdx");
 
         Debug.LogFormat("[GameManager] SetEnemyCharacter / MY : {0}, ENEMY : {1}", playerCharacter, enemyCharacter);
     }
 
-    public void SetPlayerStatus(int playerNum, int hp, int en, int[] pos)
+    public void SetPlayerStatus(int playerIdx, int hp, int en, int[] pos)
     {
-        if (playerNum == 1)
+        if ((playerIdx == 0) || (playerIdx == 1))
         {
-            p1_HP = hp;
-            p1_EN = en;
-            p1_pos = pos;
-        }
-        else if(playerNum == 2)
-        {
-            p2_HP = hp;
-            p2_EN = en;
-            p2_pos = pos;
+            player[playerIdx].Hp = hp;
+            player[playerIdx].En = en;
+            player[playerIdx].Pos = pos;
         }
         else
-            Debug.LogError("[GameManager] SetPlayerStatus : Invalid playerNum");
+            Debug.LogError("[GameManager] SetPlayerStatus : Invalid playerIdx " + playerIdx);
     }
 
-    public void GetPlayerStatus(int playerNum, out int hp, out int en)
+    public void SetReadyStatus(int playerIdx, bool readyStatus)
     {
-        if (playerNum == 1)
-        {
-            hp = p1_HP;
-            en = p1_EN;
-        }
-        else if (playerNum == 2)
-        {
-            hp = p2_HP;
-            en = p2_EN;
-        }
+        if ((playerIdx == 0) || (playerIdx == 1))
+            player[playerIdx].IsReady = readyStatus;
         else
-        {
-            Debug.LogError("[GameManager] GetPlayerStatus : Invalid playerNum");
-            hp = en = -1;
-        }
+            Debug.LogError("[GameManager] SetReadyStatus : Invalid playerIdx");
     }
 
-    public void SetReadyStatus(int playerNum, bool ready)
+    public void SetCard(int playerIdx, Queue<Card> cardQueue)
     {
-        if (playerNum == 1)
-            p1_ready = ready;
-        else if (playerNum == 2)
-            p2_ready = ready;
-        else
-            Debug.LogError("[GameManager] SetReadyStatus : Invalid playerNum");
-    }
-
-    public bool GetReadyStatus(int playerNum)
-    {
-        if (playerNum == 1)
-            return p1_ready;
-        else if (playerNum == 2)
-            return p2_ready;
-        else
-        {
-            Debug.LogError("[GameManager] SetReadyStatus : Invalid playerNum");
-            return false;
-        }
-    }
-
-    public void SetCard(int playerNum, Queue<Card> cardQueue)
-    {
-        Debug.Log("[GameManager] SetCard");
+        if (!((playerIdx == 0) || (playerIdx == 1)))
+            Debug.LogError("[GameManager] SetCard : Invalid playerIdx");
 
         // Convert object type for RPC
         string[] cardNames = new string[cardQueue.Count];
@@ -195,31 +217,29 @@ public class GameManager : MonoBehaviour, IPunObservable
             idx++;
         }
 
-        _photonView.RPC("SetCardRPC", RpcTarget.All, playerNum, cardNames as object, characterTypes as object);
+        _photonView.RPC("SetCardRPC", RpcTarget.All, playerIdx, cardNames as object, characterTypes as object);
     }
 
     [PunRPC]
-    public void SetCardRPC(int playerNum, string[] s_cardNames, string[] s_characterTypes)
+    public void SetCardRPC(int playerIdx, string[] s_cardNames, string[] s_characterTypes)
     {
         string _path = "Prefabs/Cards/";
-        Debug.Log("[GameManager] SetCardRPC : " + playerNum + " / " + _path + s_characterTypes[0].ToString() + "/"  + s_cardNames[0].ToString());
+        Debug.Log("[GameManager] SetCardRPC : " + playerIdx + " / " + _path + s_characterTypes[0].ToString() + "/"  + s_cardNames[0].ToString());
 
-        if (playerNum == 1)
+        if ((playerIdx == 0) || (playerIdx == 1))
         {
             for (int i = 0; i < s_cardNames.Length; i++)
-                p1_cardQueue.Enqueue(Resources.Load<Card>(_path + s_characterTypes[i].ToString() + "/" + s_cardNames[i].ToString()));
-            EventManager.Instance.PostNotification(EventType.Player1CardSelected, this, null);
-        }
-        else if (playerNum == 2)
-        {
-            for (int i = 0; i < s_cardNames.Length; i++)
-                p2_cardQueue.Enqueue(Resources.Load<Card>(_path + s_characterTypes[i].ToString() + "/" + s_cardNames[i].ToString()));
-            EventManager.Instance.PostNotification(EventType.Player2CardSelected, this, null);
+                player[playerIdx].PushCard(Resources.Load<Card>(_path + s_characterTypes[i].ToString() + "/" + s_cardNames[i].ToString()));
+            
+            if(playerIdx == 0)
+                EventManager.Instance.PostNotification(EventType.Player1CardSelected, this, null);
+            else if (playerIdx == 1)
+                EventManager.Instance.PostNotification(EventType.Player2CardSelected, this, null);
         }
         else
-            Debug.LogError("[GameManager] SetCardRPC : Invalid playerNum" + playerNum);
+            Debug.LogError("[GameManager] SetCardRPC : Invalid playerIdx" + playerIdx);
 
-        if ((p1_cardQueue.Count + p2_cardQueue.Count) == 6)
+        if ((player[0].Cards.Count + player[1].Cards.Count) == 6)
         {
             if (NetworkManager.Instance.IsMasterClient())
                 NetworkManager.Instance.LoadScene(4);

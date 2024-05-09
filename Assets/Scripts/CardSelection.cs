@@ -79,20 +79,20 @@ public class CardSelection : MonoBehaviour, IListener
         switch (GameManager.Instance.GetCharacter())
         {
             case CharacterType.Berserker:
-                _deselectedCardUI[DeckSize - 2].SetCard(Resources.Load<Card>("Prefabs/Cards/BERSERKER/Explosion"));
-                _deselectedCardUI[DeckSize - 1].SetCard(Resources.Load<Card>("Prefabs/Cards/BERSERKER/Restore_20"));
+                _deselectedCardUI[DeckSize - 2].SetCard(Resources.Load<Card>("Prefabs/Cards/Berserker/Explosion"));
+                _deselectedCardUI[DeckSize - 1].SetCard(Resources.Load<Card>("Prefabs/Cards/Berserker/Restore_20"));
                 break;
             case CharacterType.Mage:
-                _deselectedCardUI[DeckSize - 2].SetCard(Resources.Load<Card>("Prefabs/Cards/MAGE/Scatter"));
-                _deselectedCardUI[DeckSize - 1].SetCard(Resources.Load<Card>("Prefabs/Cards/MAGE/Shot"));
+                _deselectedCardUI[DeckSize - 2].SetCard(Resources.Load<Card>("Prefabs/Cards/Mage/Scatter"));
+                _deselectedCardUI[DeckSize - 1].SetCard(Resources.Load<Card>("Prefabs/Cards/Mage/Shot"));
                 break;
             case CharacterType.Rogue:
-                _deselectedCardUI[DeckSize - 2].SetCard(Resources.Load<Card>("Prefabs/Cards/ROGUE/Move_Left_2"));
-                _deselectedCardUI[DeckSize - 1].SetCard(Resources.Load<Card>("Prefabs/Cards/ROGUE/Move_Right_2"));
+                _deselectedCardUI[DeckSize - 2].SetCard(Resources.Load<Card>("Prefabs/Cards/Rogue/Move_Left_2"));
+                _deselectedCardUI[DeckSize - 1].SetCard(Resources.Load<Card>("Prefabs/Cards/Rogue/Move_Right_2"));
                 break;
             case CharacterType.Warrior:
-                _deselectedCardUI[DeckSize - 2].SetCard(Resources.Load<Card>("Prefabs/Cards/WARRIOR/Guard_30"));
-                _deselectedCardUI[DeckSize - 1].SetCard(Resources.Load<Card>("Prefabs/Cards/WARRIOR/Tackle"));
+                _deselectedCardUI[DeckSize - 2].SetCard(Resources.Load<Card>("Prefabs/Cards/Warrior/Guard_30"));
+                _deselectedCardUI[DeckSize - 1].SetCard(Resources.Load<Card>("Prefabs/Cards/Warrior/Tackle"));
                 break;
             default:
                 Debug.LogError("[CardSelection] Start : GetCharacter() invalid");
@@ -107,13 +107,13 @@ public class CardSelection : MonoBehaviour, IListener
         {
             case EventType.Player1CardSelected:
                 Debug.Log("[CardSelection] (E)PLAYER_1_CARD_SELECTED");
-                GameManager.Instance.SetReadyStatus(1, true);
-                SetReadyUI(1, true);
+                GameManager.Instance.SetReadyStatus(0, true);
+                SetReadyUI(0, true);
                 break;
             case EventType.Player2CardSelected:
                 Debug.Log("[CardSelection] (E)PLAYER_2_CARD_SELECTED");
-                GameManager.Instance.SetReadyStatus(2, true);
-                SetReadyUI(2, true);
+                GameManager.Instance.SetReadyStatus(1, true);
+                SetReadyUI(1, true);
                 break;
         }
     }
@@ -136,21 +136,21 @@ public class CardSelection : MonoBehaviour, IListener
         _requiredEN = 0;
         _selectedCardQueue.Clear();
         RestoreEnergy();
+        GameManager.Instance.SetReadyStatus(0, false);
         GameManager.Instance.SetReadyStatus(1, false);
-        GameManager.Instance.SetReadyStatus(2, false);
 
-        SetUserUI(GameManager.Instance.p1_HP, GameManager.Instance.p1_EN, GameManager.Instance.p2_HP, GameManager.Instance.p2_EN);
+        SetUserUI(GameManager.Instance.player[0].Hp, GameManager.Instance.player[0].En, GameManager.Instance.player[1].Hp, GameManager.Instance.player[1].En);
+        SetReadyUI(0, false);
         SetReadyUI(1, false);
-        SetReadyUI(2, false);
-        ShowPlayerIcon(GameManager.Instance.p1_pos, GameManager.Instance.p2_pos);
+        ShowPlayerIcon(GameManager.Instance.player[0].Pos, GameManager.Instance.player[1].Pos);
     }
 
     void RestoreEnergy()
     {
         int restoreAmount = 20;
 
-        GameManager.Instance.p1_EN = (GameManager.Instance.p1_EN + restoreAmount > 100) ? 100 : GameManager.Instance.p1_EN + restoreAmount;
-        GameManager.Instance.p2_EN = (GameManager.Instance.p2_EN + restoreAmount > 100) ? 100 : GameManager.Instance.p2_EN + restoreAmount;
+        for(int i = 0; i <= 1; i++)
+            GameManager.Instance.player[i].En = (GameManager.Instance.player[i].En + restoreAmount > 100) ? 100 : GameManager.Instance.player[i].En + restoreAmount;
     }
 
     private void SwipeLeft()
@@ -187,7 +187,7 @@ public class CardSelection : MonoBehaviour, IListener
             return false;
 
         // Check Energy Requirement
-        int _currEnergy = (GameManager.Instance.currPlayer == 1) ? GameManager.Instance.p1_EN : GameManager.Instance.p2_EN;
+        int _currEnergy = (GameManager.Instance.currPlayer == 0) ? GameManager.Instance.player[0].En : GameManager.Instance.player[1].En;
         if (card.energy + _requiredEN > _currEnergy)
             return false;
 
@@ -271,24 +271,24 @@ public class CardSelection : MonoBehaviour, IListener
         }
     }
 
-    private void SetUserUI(int p1HP, int p1EN, int p2HP, int p2EN)
+    private void SetUserUI(int p1_HP, int p1_EN, int p2_HP, int p2_EN)
     {
-        _p1_HP_img.fillAmount = (float)p1HP / 100.0f;
-        _p1_HP_text.text = p1HP.ToString();
-        _p1_EN_img.fillAmount = (float)p1EN / 100.0f;
-        _p1_EN_text.text = p1EN.ToString();
+        _p1_HP_img.fillAmount = (float)p1_HP / 100.0f;
+        _p1_HP_text.text = p1_HP.ToString();
+        _p1_EN_img.fillAmount = (float)p1_EN / 100.0f;
+        _p1_EN_text.text = p1_EN.ToString();
 
-        _p2_HP_img.fillAmount = (float)p2HP / 100.0f;
-        _p2_HP_text.text = p2HP.ToString();
-        _p2_EN_img.fillAmount = (float)p2EN / 100.0f;
-        _p2_EN_text.text = p2EN.ToString();
+        _p2_HP_img.fillAmount = (float)p2_HP / 100.0f;
+        _p2_HP_text.text = p2_HP.ToString();
+        _p2_EN_img.fillAmount = (float)p2_EN / 100.0f;
+        _p2_EN_text.text = p2_EN.ToString();
     }
 
-    private void SetReadyUI(int playerIndex, bool ready)
+    private void SetReadyUI(int playerIdx, bool ready)
     {
-        if (playerIndex == 1)
+        if (playerIdx == 0)
             _p1_ready_img.color = ready ? ReadyColor : NotReadyColor;
-        else if (playerIndex == 2)
+        else if (playerIdx == 1)
             _p2_ready_img.color = ready ? ReadyColor : NotReadyColor;
         else
             Debug.LogError("[CardSelection] SetReadyUI : Wrong player index");

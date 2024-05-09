@@ -132,11 +132,11 @@ public class CharacterSelection : MonoBehaviour, IListener
 
         int[] p1_pos = { 1, 2 };
         int[] p2_pos = { 4, 2 };
-        GameManager.Instance.SetPlayerStatus(1, 100, 100, p1_pos);
-        GameManager.Instance.SetPlayerStatus(2, 100, 100, p2_pos);
+        GameManager.Instance.SetPlayerStatus(0, 100, 100, p1_pos);
+        GameManager.Instance.SetPlayerStatus(1, 100, 100, p2_pos);
+        GameManager.Instance.SetReadyStatus(0, false);
         GameManager.Instance.SetReadyStatus(1, false);
-        GameManager.Instance.SetReadyStatus(2, false);
-        GameManager.Instance.currPlayer = (NetworkManager.Instance.IsMasterClient()) ? 1 : 2;
+        GameManager.Instance.currPlayer = (NetworkManager.Instance.IsMasterClient()) ? 0 : 1;
         GameManager.Instance.SetEnemyCharacter();
 
         GameManager.Instance.LoadSceneByIndex(3);

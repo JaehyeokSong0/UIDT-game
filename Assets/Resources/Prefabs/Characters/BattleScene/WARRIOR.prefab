@@ -4201,7 +4201,7 @@ GameObject:
   - component: {fileID: 7191100790416280148}
   - component: {fileID: -5764983444391922078}
   m_Layer: 0
-  m_Name: WARRIOR
+  m_Name: Warrior
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
