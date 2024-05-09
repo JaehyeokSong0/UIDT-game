@@ -621,7 +621,7 @@ GameObject:
   - component: {fileID: 449930572422964500}
   - component: {fileID: -1762601418332494788}
   m_Layer: 0
-  m_Name: ROGUE
+  m_Name: Rogue
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class NetworkLoadingPanel : MonoBehaviour
@@ -11,18 +9,18 @@ public class NetworkLoadingPanel : MonoBehaviour
 
     public void ActivateNetworkLoadingPanel()
     {
-        if (UIManager.instance.b_networkLoadingPanelActivated == false)
+        if (UIManager.Instance.IsNetworkLoadingPanelActivated == false)
         {
             gameObject.SetActive(true);
-            UIManager.instance.b_networkLoadingPanelActivated = true;
+            UIManager.Instance.IsNetworkLoadingPanelActivated = true;
         }
     }
     public void DeactivateNetworkLoadingPanel()
     {
-        if (UIManager.instance.b_networkLoadingPanelActivated == true)
+        if (UIManager.Instance.IsNetworkLoadingPanelActivated == true)
         {
             gameObject.SetActive(false);
-            UIManager.instance.b_networkLoadingPanelActivated = false;
+            UIManager.Instance.IsNetworkLoadingPanelActivated = false;
         }
     }
 }

@@ -96,13 +96,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d363f94835ec5a4448bda297bcbcb26f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  roomID: {fileID: 4683719583535198879}
-  roomName: {fileID: 4683719584089814205}
-  player1: {fileID: 4683719584039831630}
-  player2Empty: {fileID: 4683719582509771263}
-  player2Full: {fileID: 4836193264726088278}
-  Waiting: {fileID: 4683719583677183672}
-  Gaming: {fileID: 4683719583193302311}
+  _lobbyManager: {fileID: 0}
+  _roomID: {fileID: 4683719583535198879}
+  _roomName: {fileID: 4683719584089814205}
+  _player1: {fileID: 4683719584039831630}
+  _player2Empty: {fileID: 4683719582509771263}
+  _player2Full: {fileID: 4836193264726088278}
+  _waiting: {fileID: 4683719583677183672}
+  _gaming: {fileID: 4683719583193302311}
 --- !u!1 &4683719582279800520
 GameObject:
   m_ObjectHideFlags: 0

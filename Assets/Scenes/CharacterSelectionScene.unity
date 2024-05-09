@@ -363,6 +363,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5177728204218028588, guid: 4fa7655033cacb441a0ec1172586c95f, type: 3}
+      propertyPath: CardInfo
+      value: 
+      objectReference: {fileID: -4718714328602886286, guid: 2ace8d20dbc02fe4d805dd59c2d9ad7f, type: 3}
+    - target: {fileID: 5177728204218028588, guid: 4fa7655033cacb441a0ec1172586c95f, type: 3}
       propertyPath: cardInfo
       value: 
       objectReference: {fileID: -4718714328602886286, guid: 2ace8d20dbc02fe4d805dd59c2d9ad7f, type: 3}
@@ -830,18 +834,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7fc0651fd59f777428589383c2dec9c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mainCam: {fileID: 979502359}
-  deselectCharBtn: {fileID: 2100459634}
-  selectCharBtn: {fileID: 1023726908}
-  berserker: {fileID: 1929291882}
-  mage: {fileID: 537015768}
-  rogue: {fileID: 1194152498}
-  warrior: {fileID: 1166769386}
-  berserkerUI: {fileID: 468612093}
-  mageUI: {fileID: 647996530}
-  rogueUI: {fileID: 1294789083}
-  warriorUI: {fileID: 672594176}
-  currUI: {fileID: 0}
+  _mainCam: {fileID: 979502359}
+  _deselectCharBtn: {fileID: 2100459634}
+  _selectCharBtn: {fileID: 1023726908}
+  _berserker: {fileID: 1929291882}
+  _mage: {fileID: 537015768}
+  _rogue: {fileID: 1194152498}
+  _warrior: {fileID: 1166769386}
+  _berserkerUI: {fileID: 468612093}
+  _mageUI: {fileID: 647996530}
+  _rogueUI: {fileID: 1294789083}
+  _warriorUI: {fileID: 672594176}
+  CurrUI: {fileID: 0}
 --- !u!224 &453319704 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1235046752992508071, guid: 4fa7655033cacb441a0ec1172586c95f, type: 3}
@@ -951,6 +955,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5177728204218028588, guid: 4fa7655033cacb441a0ec1172586c95f, type: 3}
+      propertyPath: CardInfo
+      value: 
+      objectReference: {fileID: -4718714328602886286, guid: 915a35661312aa244ad16251ed5cb53b, type: 3}
     - target: {fileID: 5177728204218028588, guid: 4fa7655033cacb441a0ec1172586c95f, type: 3}
       propertyPath: cardInfo
       value: 
@@ -1169,8 +1177,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da4373dac4d86124e85efedea8c64ec6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  character: 2
-  SelectSceneManager: {fileID: 444306972}
+  _characterType: 2
 --- !u!65 &537015771
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1604,6 +1611,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5177728204218028588, guid: 4fa7655033cacb441a0ec1172586c95f, type: 3}
+      propertyPath: CardInfo
+      value: 
+      objectReference: {fileID: -4718714328602886286, guid: 114449dc3cea9194897557d5f5af24bf, type: 3}
+    - target: {fileID: 5177728204218028588, guid: 4fa7655033cacb441a0ec1172586c95f, type: 3}
       propertyPath: cardInfo
       value: 
       objectReference: {fileID: -4718714328602886286, guid: 114449dc3cea9194897557d5f5af24bf, type: 3}
@@ -1716,6 +1727,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5177728204218028588, guid: 4fa7655033cacb441a0ec1172586c95f, type: 3}
+      propertyPath: CardInfo
+      value: 
+      objectReference: {fileID: -4718714328602886286, guid: ebe0d904a38b0ae4c90c5ddd49b2636d, type: 3}
     - target: {fileID: 5177728204218028588, guid: 4fa7655033cacb441a0ec1172586c95f, type: 3}
       propertyPath: cardInfo
       value: 
@@ -2444,7 +2459,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e0069c1864b32c4e95bb559e94492d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mainCamera: {fileID: 979502359}
+  _camera: {fileID: 979502359}
 --- !u!1001 &989190913
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2753,6 +2768,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5177728204218028588, guid: 4fa7655033cacb441a0ec1172586c95f, type: 3}
+      propertyPath: CardInfo
+      value: 
+      objectReference: {fileID: -4718714328602886286, guid: 0dd7b25c5eb17c540b3c1a950cd1641f, type: 3}
     - target: {fileID: 5177728204218028588, guid: 4fa7655033cacb441a0ec1172586c95f, type: 3}
       propertyPath: cardInfo
       value: 
@@ -3568,6 +3587,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5177728204218028588, guid: 4fa7655033cacb441a0ec1172586c95f, type: 3}
+      propertyPath: CardInfo
+      value: 
+      objectReference: {fileID: -4718714328602886286, guid: 54dab6dde4a55de4ab4246f8bcb98db2, type: 3}
+    - target: {fileID: 5177728204218028588, guid: 4fa7655033cacb441a0ec1172586c95f, type: 3}
       propertyPath: cardInfo
       value: 
       objectReference: {fileID: -4718714328602886286, guid: 54dab6dde4a55de4ab4246f8bcb98db2, type: 3}
@@ -4212,8 +4235,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da4373dac4d86124e85efedea8c64ec6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  character: 4
-  SelectSceneManager: {fileID: 444306972}
+  _characterType: 4
 --- !u!65 &1661437996
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4332,6 +4354,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5177728204218028588, guid: 4fa7655033cacb441a0ec1172586c95f, type: 3}
+      propertyPath: CardInfo
+      value: 
+      objectReference: {fileID: -4718714328602886286, guid: 7e91ed1c5ede92340960cd0a3d9bc40d, type: 3}
+    - target: {fileID: 5177728204218028588, guid: 4fa7655033cacb441a0ec1172586c95f, type: 3}
       propertyPath: cardInfo
       value: 
       objectReference: {fileID: -4718714328602886286, guid: 7e91ed1c5ede92340960cd0a3d9bc40d, type: 3}
@@ -4435,8 +4461,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da4373dac4d86124e85efedea8c64ec6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  character: 1
-  SelectSceneManager: {fileID: 444306972}
+  _characterType: 1
 --- !u!65 &1929291884
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4550,6 +4575,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5177728204218028588, guid: 4fa7655033cacb441a0ec1172586c95f, type: 3}
+      propertyPath: CardInfo
+      value: 
+      objectReference: {fileID: -4718714328602886286, guid: 504eaee26f36d254faf763c7ddb68290, type: 3}
+    - target: {fileID: 5177728204218028588, guid: 4fa7655033cacb441a0ec1172586c95f, type: 3}
       propertyPath: cardInfo
       value: 
       objectReference: {fileID: -4718714328602886286, guid: 504eaee26f36d254faf763c7ddb68290, type: 3}
@@ -4655,8 +4684,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da4373dac4d86124e85efedea8c64ec6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  character: 3
-  SelectSceneManager: {fileID: 444306972}
+  _characterType: 3
 --- !u!65 &2090520298
 BoxCollider:
   m_ObjectHideFlags: 0

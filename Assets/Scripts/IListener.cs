@@ -1,8 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public interface IListener
 {
-    void OnEvent(EVENT_TYPE Event_Type, Component Sender, object Param = null);
+    void OnEvent(EventType eventType, Component Sender, object Param = null);
 }

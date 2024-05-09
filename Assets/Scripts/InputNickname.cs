@@ -1,39 +1,38 @@
 using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.Events;
 using TMPro;
+using UnityEngine;
 
 public class InputNickname : MonoBehaviour
 {
-    public TMP_Text warningMessage;
-    public TMP_InputField nicknameInputField;
+    [SerializeField]
+    private TMP_Text _warningMessage;
+    [SerializeField]
+    private TMP_InputField _nicknameInputField;
 
     private void Awake()
     {
-        nicknameInputField.onSubmit.AddListener(delegate { SetPlayerNickname(); });
+        _nicknameInputField.onSubmit.AddListener(delegate { SetPlayerNickname(); });
     }
 
-    public void SetPlayerNickname()
+    private void SetPlayerNickname()
     {
-        string _nickname = nicknameInputField.text;
+        string _nickname = _nicknameInputField.text;
         string _upperNickname = _nickname.ToUpper();
 
         if (string.IsNullOrEmpty(_nickname))
-            StartCoroutine(BlinkText(warningMessage));
+            StartCoroutine(BlinkText(_warningMessage));
         else if (_nickname.Contains(" "))
-            StartCoroutine(BlinkText(warningMessage));
+            StartCoroutine(BlinkText(_warningMessage));
         else if ((_upperNickname == "ADMIN") || (_upperNickname == "SYSTEM"))
-            StartCoroutine(BlinkText(warningMessage));
+            StartCoroutine(BlinkText(_warningMessage));
         else
         {
-            NetworkManager.instance.SetPlayerNickname(_nickname);
-            GameManager.instance.LoadSceneByIndex(1);
+            NetworkManager.Instance.SetPlayerNickname(_nickname);
+            GameManager.Instance.LoadSceneByIndex(1);
         }
     }
 
-    public IEnumerator BlinkText(TMP_Text text)
+    private IEnumerator BlinkText(TMP_Text text)
     {
         float duration = 0.1f;
         int count = 2;

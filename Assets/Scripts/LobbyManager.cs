@@ -1,27 +1,25 @@
-using System.Collections;
+using Photon.Realtime;
 using System.Collections.Generic;
 using UnityEngine;
-using Photon.Realtime;
-using TMPro;
-using Photon.Pun;
 
 public class LobbyManager : MonoBehaviour, IListener
 {
-    const int roomsCount = 4;
+    private const int RoomsCount = 4;
 
-    public GameObject[] UI_Room = new GameObject[4];
-    public GameObject LobbyButtons; // LobbyScene\Canvas\Lobby\UI_Buttons
-    public GameObject UI_InRoom;
+    [SerializeField] 
+    private GameObject[] _roomUI = new GameObject[4];
+    [SerializeField] 
+    private GameObject _lobbyButtons, _inRoomUI;
 
     private void Awake()
     {
         Debug.Log("[LobbyManager] Awake");
 
-        EventManager.instance.AddListener(EVENT_TYPE.UPDATE_LOBBY, this);
-        EventManager.instance.AddListener(EVENT_TYPE.CREATE_ROOM_SUCCESS, this);
-        EventManager.instance.AddListener(EVENT_TYPE.CREATE_ROOM_FAILURE, this);
-        EventManager.instance.AddListener(EVENT_TYPE.JOIN_ROOM_SUCCESS, this);
-        EventManager.instance.AddListener(EVENT_TYPE.JOIN_ROOM_FAILURE, this);
+        EventManager.Instance.AddListener(EventType.UpdateLobby, this);
+        EventManager.Instance.AddListener(EventType.CreateRoomSuccess, this);
+        EventManager.Instance.AddListener(EventType.CreateRoomFailure, this);
+        EventManager.Instance.AddListener(EventType.JoinRoomSuccess, this);
+        EventManager.Instance.AddListener(EventType.JoinRoomFailure, this);
 
     }
 
@@ -30,13 +28,13 @@ public class LobbyManager : MonoBehaviour, IListener
         Debug.Log("[LobbyManager] Start");
     }
 
-    public void OnEvent(EVENT_TYPE event_type, Component sender, object param = null)
+    public void OnEvent(EventType eventType, Component sender, object param = null)
     {
-        Debug.LogFormat("[LobbyManager] OnEvent() / EVENT : {0}, Sender : {1}, Param : {2} ", event_type, sender.gameObject.name.ToString(), param);
+        Debug.LogFormat("[LobbyManager] OnEvent() / EVENT : {0}, Sender : {1}, Param : {2} ", eventType, sender.gameObject.name.ToString(), param);
 
-        switch (event_type)
+        switch (eventType)
         {
-            case EVENT_TYPE.UPDATE_LOBBY:
+            case EventType.UpdateLobby:
                 Debug.Log("[LobbyManager] (E)UPDATE_LOBBY");
 
                 if(param is Dictionary<string, RoomInfo>)
@@ -44,25 +42,25 @@ public class LobbyManager : MonoBehaviour, IListener
                 else
                     Debug.LogError("[LobbyManager] ((E)UPDATE_LOBBY) Casting invalid");
                 break;
-            case EVENT_TYPE.CREATE_ROOM_SUCCESS:
+            case EventType.CreateRoomSuccess:
                 Debug.Log("[LobbyManager] (E)CREATE_ROOM_SUCCESS");
 
-                CreateRoom_Success();
+                CreateRoomSuccess();
                 break;
-            case EVENT_TYPE.CREATE_ROOM_FAILURE:
+            case EventType.CreateRoomFailure:
                 Debug.Log("[LobbyManager] (E)CREATE_ROOM_FAILURE");
 
-                CreateRoom_Fail();
+                CreateRoomFailure();
                 break;
-            case EVENT_TYPE.JOIN_ROOM_SUCCESS:
+            case EventType.JoinRoomSuccess:
                 Debug.Log("[LobbyManager] (E)JOIN_ROOM_SUCCESS");
 
-                JoinRoom_Success();
+                JoinRoomSuccess();
                 break;
-            case EVENT_TYPE.JOIN_ROOM_FAILURE:
+            case EventType.JoinRoomFailure:
                 Debug.Log("[LobbyManager] (E)JOIN_ROOM_FAILURE");
 
-                JoinRoom_Fail();
+                JoinRoomFailure();
                 break;
         }
     }
@@ -71,25 +69,22 @@ public class LobbyManager : MonoBehaviour, IListener
     {
         Debug.Log("[LobbyManager] UpdateLobby() / Current RoomCnt : " + roomList.Count);
 
-        foreach(var room in roomList)
-            Debug.Log(room.Key + ": " + room.Value);
-
         if (roomList == null)
             return;
 
         // Reset all rooms UI
         for(int i = 0; i < 4; i++)
         {
-            GameObject activatedRoom = UI_Room[i].transform.GetChild(0).gameObject;
+            GameObject activatedRoom = _roomUI[i].transform.GetChild(0).gameObject;
             activatedRoom.SetActive(false);
         }
 
-        int _roomCnt = 0;
+        int roomCnt = 0;
         foreach (RoomInfo info in roomList.Values)
         {
-            _roomCnt++;
+            roomCnt++;
 
-            if (_roomCnt > 4)
+            if (roomCnt > 4)
             {
                 Debug.LogError("[LobbyManager] UpdateLobby() / Invalid roomCnt");
                 return;
@@ -97,7 +92,7 @@ public class LobbyManager : MonoBehaviour, IListener
             Debug.LogFormat("[LobbyManager] {0}, {1}, {2}", info.Name, info.PlayerCount, info.IsOpen);
             // clone, 1, True
 
-            GameObject activatedRoom = UI_Room[_roomCnt - 1].transform.GetChild(0).gameObject;
+            GameObject activatedRoom = _roomUI[roomCnt - 1].transform.GetChild(0).gameObject;
             activatedRoom.SetActive(true);
 
             ActivatedRoom roomScript = activatedRoom.GetComponent<ActivatedRoom>();
@@ -108,44 +103,44 @@ public class LobbyManager : MonoBehaviour, IListener
         }
     }
 
-    public void Req_CreateRoom() // NetworkManager에 CreateRoom 요청 후 콜백을 통해 작업 수행
+    public void TryCreateRoom() // Request CreateRoom to NetworkManager
     {
-        Debug.Log("[LobbyManager] Req_CreateRoom()");
-        NetworkManager.instance.CreateRoom();
+        Debug.Log("[LobbyManager] TryCreateRoom()");
+        NetworkManager.Instance.CreateRoom();
     }
 
-    public void CreateRoom_Success()
+    public void CreateRoomSuccess()
     {
-        Debug.Log("[LobbyManager] CreateRoom_Success()");
+        Debug.Log("[LobbyManager] CreateRoomSuccess()");
 
-        if (NetworkManager.instance.GetRoomCount() < 4)
+        if (NetworkManager.Instance.GetRoomCount() < 4)
         {
             ShowInRoom();
-            EventManager.instance.PostNotification(EVENT_TYPE.INIT_INROOM, this, null); // InRoom\SetInRoom() 수행
+            EventManager.Instance.PostNotification(EventType.InitInRoom, this, null); // Invoke InRoom/SetInRoom
         }
         else
             Debug.LogError("[LobbyManager] CreateRoom() failed : Too many rooms.");
     }
 
-    public void CreateRoom_Fail() 
+    public void CreateRoomFailure() 
     {
-        Debug.Log("[LobbyManager] CreateRoom_Fail()");
+        Debug.Log("[LobbyManager] CreateRoomFailure()");
     }
-    public void Req_JoinRoom(string roomName)
+    public void TryJoinRoom(string roomName)
     {
         Debug.Log("[LobbyManager] JoinRoom()");
-        NetworkManager.instance.JoinRoom(roomName);
+        NetworkManager.Instance.JoinRoom(roomName);
     }
 
-    public void JoinRoom_Success()
+    public void JoinRoomSuccess()
     {
-        Debug.Log("[LobbyManager] JoinRoom_Success()");
+        Debug.Log("[LobbyManager] JoinRoomSuccess()");
         ShowInRoom();
-        EventManager.instance.PostNotification(EVENT_TYPE.INIT_INROOM, this, null); // InRoom\SetInRoom() 수행
+        EventManager.Instance.PostNotification(EventType.InitInRoom, this, null); // Invoke InRoom/SetInRoom
     }
-    public void JoinRoom_Fail()
+    public void JoinRoomFailure()
     {
-        Debug.Log("[LobbyManager] JoinRoom_Fail()");
+        Debug.Log("[LobbyManager] JoinRoomFailure()");
     }
 
     public void ExitRoom()
@@ -156,19 +151,19 @@ public class LobbyManager : MonoBehaviour, IListener
 
     public void ShowInRoom()
     {
-        LobbyButtons.SetActive(false);
-        for (int i = 0; i < roomsCount; i++)
-            UI_Room[i].SetActive(false);
+        _lobbyButtons.SetActive(false);
+        for (int i = 0; i < RoomsCount; i++)
+            _roomUI[i].SetActive(false);
 
-        UI_InRoom.SetActive(true);
+        _inRoomUI.SetActive(true);
     }
 
     public void ShowLobby()
     {
-        LobbyButtons.SetActive(true);
-        for (int i = 0; i < roomsCount; i++)
-            UI_Room[i].SetActive(true);
+        _lobbyButtons.SetActive(true);
+        for (int i = 0; i < RoomsCount; i++)
+            _roomUI[i].SetActive(true);
 
-        UI_InRoom.SetActive(false);
+        _inRoomUI.SetActive(false);
     }
 }

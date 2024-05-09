@@ -1,21 +1,21 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using TMPro;
 using Photon.Pun;
+using TMPro;
+using UnityEngine;
+using UnityEngine.Serialization;
 
 public class UIDField : MonoBehaviour
 {
-    public TMP_Text UID_field;
+    [FormerlySerializedAs("UID_field")]
+    [SerializeField]
+    private TMP_Text _idField;
     
-    // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
         SetUIDField();
     }
 
-    public void SetUIDField()
+    private void SetUIDField()
     {
-        UID_field.text = "UID : " + PhotonNetwork.LocalPlayer.NickName;
+        _idField.text = "UID : " + PhotonNetwork.LocalPlayer.NickName;
     }
 }

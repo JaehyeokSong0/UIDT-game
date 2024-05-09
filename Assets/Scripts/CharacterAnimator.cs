@@ -1,28 +1,22 @@
 using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class CharacterAnimator : MonoBehaviour
 {
-    Animator anim;
-    // Start is called before the first frame update
-    void Awake()
-    {
-        anim = GetComponent<Animator>();
-        Debug.Log("[CharacterAnimator] Awake / anim : " + anim);
+    private Animator _anim;
 
-    }
-
-    private void Update()
+    private void Awake()
     {
+        _anim = GetComponent<Animator>();
+        if ( _anim == null )
+            Debug.LogError("[CharacterAnimator] Awake : Animator cannot be null");
     }
 
     public IEnumerator Move(Vector3 toPos)
     {
         Debug.Log("[CharacterAnimator] Move / currPos : " + gameObject.transform.position + " / toPos : " + toPos);
 
-        anim.SetBool("move", true);
+        _anim.SetBool("move", true);
         Vector3 fromPos = this.transform.position;
 
         float speed = 22.0f;
@@ -33,43 +27,43 @@ public class CharacterAnimator : MonoBehaviour
             var dir = (toPos - this.transform.position).normalized;
             this.transform.position += dir * speed * Time.deltaTime;
         }
-        anim.SetBool("move", false);
+        _anim.SetBool("move", false);
     }
 
     public IEnumerator Attack()
     {
         Debug.Log("[CharacterAnimator] Attack");
 
-        anim.SetBool("attack", true);
+        _anim.SetBool("attack", true);
         yield return new WaitForSeconds(1.334f);
-        anim.SetBool("attack", false);
+        _anim.SetBool("attack", false);
     }
 
     public IEnumerator Guard() // 0.8 speed
     {
-        anim.SetBool("guard", true);
+        _anim.SetBool("guard", true);
         yield return new WaitForSeconds(0.417f);
-        anim.SetBool("guard", false);
+        _anim.SetBool("guard", false);
     }
 
     public IEnumerator Restore()
     {
-        anim.SetBool("restore", true);
+        _anim.SetBool("restore", true);
         yield return new WaitForSeconds(1.667f);
-        anim.SetBool("restore", false);
+        _anim.SetBool("restore", false);
 
     }
 
     public IEnumerator GetHit() // 0.8 speed
     {
-        anim.SetBool("gethit", true);
+        _anim.SetBool("gethit", true);
         yield return new WaitForSeconds(0.584f);
-        anim.SetBool("gethit", false);
+        _anim.SetBool("gethit", false);
     }
 
     public IEnumerator Die()
     {
-        anim.SetTrigger("die");
+        _anim.SetTrigger("die");
         yield return new WaitForSeconds(1.0f);
     }
 
