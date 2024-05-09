@@ -87,7 +87,7 @@ public class CharacterSelection : MonoBehaviour, IListener
         ShowSelectUI(character);
     }
 
-    private void SelectCharacter() // GameScene 전환
+    private void SelectCharacter()
     {
         if (_isReady == false)
             _isReady = true;
@@ -126,7 +126,7 @@ public class CharacterSelection : MonoBehaviour, IListener
         HideSelectUI();
     }
 
-    private void EnterCardSelectionPhase() // 게임 환경설정 및 씬 전환
+    private void EnterCardSelectionPhase() // Game environment configuration & Scene transition
     {
         Debug.Log("[CharacterSelection] EnterCardSelectionPhase");
 

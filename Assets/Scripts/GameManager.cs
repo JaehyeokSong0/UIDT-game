@@ -183,19 +183,19 @@ public class GameManager : MonoBehaviour, IPunObservable
     {
         Debug.Log("[GameManager] SetCard");
 
-        // RPC 통신이 가능한 형태로 변환
-        string[] _cardNames = new string[cardQueue.Count];
-        string[] _characterTypes = new string[cardQueue.Count];
+        // Convert object type for RPC
+        string[] cardNames = new string[cardQueue.Count];
+        string[] characterTypes = new string[cardQueue.Count];
 
         int idx = 0;
         foreach (Card card in cardQueue)
         {
-            _cardNames[idx] = card.cardName;
-            _characterTypes[idx] = card.characterType.ToString();
+            cardNames[idx] = card.cardName;
+            characterTypes[idx] = card.characterType.ToString();
             idx++;
         }
 
-        _photonView.RPC("SetCardRPC", RpcTarget.All, playerNum, _cardNames as object, _characterTypes as object);
+        _photonView.RPC("SetCardRPC", RpcTarget.All, playerNum, cardNames as object, characterTypes as object);
     }
 
     [PunRPC]

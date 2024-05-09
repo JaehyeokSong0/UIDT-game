@@ -264,21 +264,19 @@ public class BattleManager : MonoBehaviour, IListener
 
     void LeaveRoomSuccess()
     {
-        //NetworkManager.instance.LoadScene(1);
         GameManager.Instance.LoadSceneByIndex(1);
         GameManager.Instance.InitGameStatus();
     }
 
 
     int GetPriority(Card card)
-    // 우선순위가 높을수록 더 낮은 숫자 반환
-    // 공격은 2순위, 그 외는 1순위
+    // Higher priority returns lower numbers
+    // [Attack] 2nd priority / [Else] 1st priority
     {
         Debug.Log("[BattleManager] GetPriority");
         return (card.cardType == CardType.Attack) ? 2 : 1;
     }
 
-    // 이긴 Player 반환
     IEnumerator TakeTurn(Card p1Card, Card p2Card)
     {
         Debug.Log("[BattleManager] TakeTurn");
@@ -301,10 +299,10 @@ public class BattleManager : MonoBehaviour, IListener
             yield return new WaitForSeconds(5.0f);
         }
 
-        if (CheckTurnResult() != GameResult.Continue) // 게임이 끝났다면
+        if (CheckTurnResult() != GameResult.Continue) // Game End
         {
             Debug.Log("GAME END");
-            InsertLog(CheckTurnResult().ToString()); // 게임결과 띄우고 나가기 버튼 활성화 -> 클릭 : 로비로 이동
+            InsertLog(CheckTurnResult().ToString()); // Show game result and activate exit(to lobby) button
             StopAllCoroutines();
             _exitGameButton.gameObject.SetActive(true);
         }
@@ -316,7 +314,7 @@ public class BattleManager : MonoBehaviour, IListener
 
         Card playerCard = (playerIdx == 0) ? P1Card : P2Card;
         Card enemyCard = (playerIdx == 0) ? P2Card : P1Card;
-        int _enemyIdx = (playerIdx == 0) ? 1 : 0; // [MEMO] myIdx/enemyIdx와 구분 : 리팩토링 필요
+        int enemyIdx = (playerIdx == 0) ? 1 : 0;
 
         if (playerIdx == 0)
         {
@@ -345,14 +343,14 @@ public class BattleManager : MonoBehaviour, IListener
                 while(attackRange.Count > 0)
                 {
                     var cell = attackRange.Dequeue();
-                    int _attackedIdx = (cell[0] - 1) + (cell[1] - 1) * 4;
+                    int attackedIdx = (cell[0] - 1) + (cell[1] - 1) * 4;
 
-                    StartCoroutine(MarkRange(_attackedIdx)) ;
-                    if ((player[_enemyIdx].Pos[0] == cell[0]) && (player[_enemyIdx].Pos[1] == cell[1])) // 피격
-                        Attack(_enemyIdx, playerCard, enemyCard);
+                    StartCoroutine(MarkRange(attackedIdx)) ;
+                    if ((player[enemyIdx].Pos[0] == cell[0]) && (player[enemyIdx].Pos[1] == cell[1])) // Attacked
+                        Attack(enemyIdx, playerCard, enemyCard);
                 }
 
-                StartCoroutine(player[playerIdx].CharacterGO.GetComponent<CharacterAnimator>().Attack()); // 공격에 실패하더라도 모션은 나와야 함
+                StartCoroutine(player[playerIdx].CharacterGO.GetComponent<CharacterAnimator>().Attack()); // Need attack animation unless attack failed
                 break;
             case CardType.Guard:
                 InsertLog("[GUARD] " + username + " : " + playerCard.cardName);
@@ -368,8 +366,7 @@ public class BattleManager : MonoBehaviour, IListener
         SetUserUI();
     }
 
-    // 좌하단 좌표 : (1,1)
-    // MAXWIDTH = 4, MAXHEIGHT = 3
+    // LEFT - DOWN :(1,1)
     void MovePos(int playerIdx, Card card)
     {
         if (card.cardType != CardType.Move)
@@ -403,21 +400,23 @@ public class BattleManager : MonoBehaviour, IListener
 
         // Animation 
         var toPos = positions[playerIdx, (player[playerIdx].Pos[1] - 1) * 4 + (player[playerIdx].Pos[0] - 1)];
-        StartCoroutine(C_SetCharacterDirection(playerIdx, toPos));
+        StartCoroutine(SetCharacterDirectionCoroutine(playerIdx, toPos));
     }
 
-    IEnumerator C_SetCharacterDirection(int playerIdx, Vector3 toPos)
+    IEnumerator SetCharacterDirectionCoroutine(int playerIdx, Vector3 toPos)
     {
-        int _enemyIdx = (playerIdx == 1) ? 0 : 1; // 상대 클라이언트의 index가 아닌 movepos를 수행하는 클라이언트의 상대 index
+        int enemyIdx = (playerIdx == 1) ? 0 : 1;
+        // Not enemy client's index. Moving player's enemy index.
 
         yield return StartCoroutine(player[playerIdx].CharacterGO.GetComponent<CharacterAnimator>().Move(toPos));
-        SetCharacterDirection(player[playerIdx].CharacterGO, GetDirection(player[playerIdx].Pos, player[_enemyIdx].Pos, playerIdx));
+        SetCharacterDirection(player[playerIdx].CharacterGO, GetDirection(player[playerIdx].Pos, player[enemyIdx].Pos, playerIdx));
     }
-    // cardRange의 가운데 index는 5인 플레이어 중심 좌표계
-    // attackRange는 player들이 위치한 map 좌표계
 
     void GetAttackRange(int[] playerPos, bool[] cardRange, ref Queue<int[]> attackRange)
-    { 
+    // cardRange : player-origin coordinates (1 ~ 9 / center : 5)
+    // attackRange : map coordinates where the battle takes place ((1,1) ~ (4,3))
+
+    {
         int posX = playerPos[0];
         int posY = playerPos[1];
         Debug.Log("[BattleManager] GetAttackRange : " + posX + "," + posY);
@@ -523,7 +522,7 @@ public class BattleManager : MonoBehaviour, IListener
             return GameResult.Player1Win;
     }
 
-    // fromPos의 Character가 바라봐야할 방향 반환
+    // Return direction of fromPos' Character
     MoveDirection GetDirection(int[] fromPos, int[] toPos, int playerIdx)
     {
         Debug.Log("[BattleManager] GetDirection");

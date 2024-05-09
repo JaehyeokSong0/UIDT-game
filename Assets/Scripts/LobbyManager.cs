@@ -106,7 +106,7 @@ public class LobbyManager : MonoBehaviour, IListener
         }
     }
 
-    public void TryCreateRoom() // NetworkManager에 CreateRoom 요청 후 콜백을 통해 작업 수행
+    public void TryCreateRoom() // Request CreateRoom to NetworkManager
     {
         Debug.Log("[LobbyManager] TryCreateRoom()");
         NetworkManager.Instance.CreateRoom();
@@ -119,7 +119,7 @@ public class LobbyManager : MonoBehaviour, IListener
         if (NetworkManager.Instance.GetRoomCount() < 4)
         {
             ShowInRoom();
-            EventManager.Instance.PostNotification(EventType.InitInRoom, this, null); // InRoom\SetInRoom() 수행
+            EventManager.Instance.PostNotification(EventType.InitInRoom, this, null); // Invoke InRoom/SetInRoom
         }
         else
             Debug.LogError("[LobbyManager] CreateRoom() failed : Too many rooms.");
@@ -139,7 +139,7 @@ public class LobbyManager : MonoBehaviour, IListener
     {
         Debug.Log("[LobbyManager] JoinRoomSuccess()");
         ShowInRoom();
-        EventManager.Instance.PostNotification(EventType.InitInRoom, this, null); // InRoom/SetInRoom() 수행
+        EventManager.Instance.PostNotification(EventType.InitInRoom, this, null); // Invoke InRoom/SetInRoom
     }
     public void JoinRoomFailure()
     {

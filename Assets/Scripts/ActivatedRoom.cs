@@ -10,7 +10,6 @@ public class ActivatedRoom : MonoBehaviour, IPointerClickHandler
     private GameObject _roomID, _roomName, _player1, _player2Empty, _player2Full, _waiting, _gaming;
     private RoomInfo _roomInfo;
 
-    // Start is called before the first frame update
     void Start()
     {
         if (_lobbyManager== null)
@@ -51,7 +50,7 @@ public class ActivatedRoom : MonoBehaviour, IPointerClickHandler
 
     public void SetGameStatus(bool isWaiting)
     {
-        if(isWaiting == true) // Room is open
+        if(isWaiting == true)
         {
             _waiting.SetActive(true);
             _gaming.SetActive(false);
@@ -64,7 +63,6 @@ public class ActivatedRoom : MonoBehaviour, IPointerClickHandler
     }
 
     public void TryJoinRoom()
-    // JoinRoom 요청을 보내 수신한 콜백 이벤트에 따라 LobbyManager에서 작업 수행
     {
         _lobbyManager.TryJoinRoom(_roomInfo.Name);
     }

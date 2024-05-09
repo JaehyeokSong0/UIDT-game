@@ -8,7 +8,10 @@ public enum CardType
     Restore
 }
 
-public enum MoveDirection // 3*3 grid에서의 index 기준
+public enum MoveDirection 
+// 0 1 2
+// 3 4 5
+// 6 7 8
 {
     Up = 1, 
     Left = 3,
@@ -25,11 +28,11 @@ public class Card : MonoBehaviour
     public CardType cardType;
     public CharacterType characterType;
 
-    public int value; // ATTACK, GUARD, RESTORE의 값
+    public int value; // Attack, Guard, Restore
     public int energy;
 
     public MoveDirection moveDir;
-    public bool[] attackAttr = new bool[9]; // CardType.Attack : 좌상단을 0으로 설정하여 0 ~ 8 까지의 공격 범위 설정
+    public bool[] attackAttr = new bool[9]; // Range : 0 ~ 8 (Left - Up : 0)
 }
 
 

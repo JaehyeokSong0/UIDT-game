@@ -103,7 +103,7 @@ public class EventManager : MonoBehaviour
     }
 
     public void RemoveRedundancies()
-    // Listeners 내의 중복 제거
+    //  Remove redundancies in Listeners
     {
         Dictionary<EventType, List<IListener>> _Listeners = new Dictionary<EventType, List<IListener>>();
 

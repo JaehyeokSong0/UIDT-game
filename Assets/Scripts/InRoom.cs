@@ -104,13 +104,13 @@ public class InRoom : MonoBehaviour, IListener
         _player1Name.text = player1.NickName;
         _player2Ready.color = NotReadyTextColor;
 
-        if (isHost) // CreateRoom의 경우
+        if (isHost) // CreateRoom
         {
             _readyButton.gameObject.SetActive(false);
             _readyButtonPressed.gameObject.SetActive(false);
             _startButton.gameObject.SetActive(true);
         }
-        else // JoinRoom의 경우
+        else // JoinRoom
         {
             _player2Name.text = player2.NickName;
             _readyButton.gameObject.SetActive(true);
@@ -120,7 +120,7 @@ public class InRoom : MonoBehaviour, IListener
     }
 
     public void ClientJoinedRoom(Player newPlayer)
-    // Host 기준 Client 입장 후 InRoom 갱신 - NetworkManager\OnPlayerEnteredRoom과 연동
+    // (For host) Set InRoom UI after client join room
     {
         Debug.Log("[InRoom] ClientJoinedRoom()");
         _player2Name.text = newPlayer.NickName;
@@ -133,7 +133,7 @@ public class InRoom : MonoBehaviour, IListener
     }
 
     public void ReadyInRoom()
-    // Player2의 Status를 Ready로 변경
+    // Set Player2 Status to Ready
     {
         EventManager.Instance.PostNotification(EventType.ClientReady, this, null);
         NetworkManager.Instance.ReadyInRoom(true);
@@ -143,7 +143,7 @@ public class InRoom : MonoBehaviour, IListener
     }
 
     public void NotReadyInRoom()
-    // Player2의 Status를 NotReady로 변경
+    // Set Player2 Status to NotReady
     {
         EventManager.Instance.PostNotification(EventType.ClientNotReady, this, null);
         NetworkManager.Instance.ReadyInRoom(false);
@@ -158,7 +158,7 @@ public class InRoom : MonoBehaviour, IListener
     }
 
     public void TryStartGameInRoom()
-    // Room의 Status를 Gaming으로 변경 + Character Select Scene으로 전환
+    // Set RoomStatus to gaming + Load CharacterSelectionScene
     {
         NetworkManager.Instance.P1_username = _player1Name.text;
         NetworkManager.Instance.P2_username = _player2Name.text;
@@ -176,14 +176,13 @@ public class InRoom : MonoBehaviour, IListener
     }
 
     public void ExitInRoomSuccess()
-    // InGame UI 해제
+    // Unload InRoomUI
     {
         _lobbyManager.ExitRoom();
     }
 
     public void MigrateHost()
-    // Host(Player1)이 room에서 나간 경우 UI상에서 Player2의 위치(오른쪽)를 Player1의 위치(왼쪽)으로 이동
-    // 서버단에서의 작업은 NetworkManager에서 구현
+    // [UI] If Host(Player1) leave room, Set Player2 be the host
     {
         _player1Name.text = PhotonNetwork.LocalPlayer.NickName;
         _player2Name.text = "";

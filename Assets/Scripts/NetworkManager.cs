@@ -11,7 +11,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     private const byte MaxPlayersPerRoom = 2;
 
     private Dictionary<string, RoomInfo> _roomList = new Dictionary<string, RoomInfo>();
-    private bool _isReconnectionToLobby = false; // leaveRoom 등의 메소드 이후 master 서버에 재접속 시 true
+    private bool _isReconnectionToLobby = false; // True when reconnected to master server after actions such as leaveRoom
 
     [HideInInspector]
     public string P1_username, P2_username;
@@ -32,7 +32,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks
                 Destroy(this.gameObject);
         }
 
-        // PhotonNetwork.LoadLevel() 사용 가능 / 클라이언트 간 자동 동기화
         PhotonNetwork.AutomaticallySyncScene = true;
     }
 
@@ -47,7 +46,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     {
         if (!PhotonNetwork.IsConnected)
         {
-            // Photon Cloud 연결 시작 지점
             PhotonNetwork.ConnectUsingSettings();
         }
     }
@@ -233,22 +231,21 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         {
             RoomInfo room = roomList[i];
 
-            if (room.RemovedFromList) // room이 삭제된 경우
+            if (room.RemovedFromList) // If room removed
             {
                 _roomList.Remove(room.Name);
             }
-            else // roomList가 갱신된 경우
+            else // If roomList refreshed
             {
-                if (_roomList.ContainsKey(room.Name) == false) // 새로 생성된 room인 경우
+                if (_roomList.ContainsKey(room.Name) == false) // For newly created room
                     _roomList.Add(room.Name, room);
-                else // 이미 존재하는 room인 경우
+                else // For already exist room
                     _roomList[room.Name] = room;
             }
         }
     }
 
     public void CreateRoom()
-    // 성공 여부 콜백 함수에서 이벤트 발생시켜 클라이언트 동작 수행
     {
         Debug.Log("[NetworkManager] CreateRoom");
 
@@ -285,8 +282,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     }
 
     public void ReadyInRoom(bool isReady)
-    // Client가 Ready하는 경우 방의 ReadyPlayerCnt를 1, Ready를 취소하는 경우 0으로 변경
-    // [MEMO] 추후 예외처리가 필요할 가능성 존재
     {
         Debug.Log("[NetworkManager] ReadyInRoom");
 

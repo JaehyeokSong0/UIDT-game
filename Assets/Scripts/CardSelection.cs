@@ -130,7 +130,7 @@ public class CardSelection : MonoBehaviour, IListener
         _p2_icon = Instantiate(p2_icon, _miniMap[p2_idx]);
     }
 
-    public void Init() // CardSelectionPhase 전환마다 수행
+    public void Init()
     {
         _isReady = false;
         _requiredEN = 0;

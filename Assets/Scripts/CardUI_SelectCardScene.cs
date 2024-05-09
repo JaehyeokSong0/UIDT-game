@@ -1,7 +1,6 @@
 using UnityEngine;
 
-// SelectCardScene에서 Unselected CardUI에 추가로 붙이는 컴포넌트
-// Mouse event 등을 관리
+// Additional component on Unselected CardUI in SelectCardScene
 public class CardUI_SelectCardScene : MonoBehaviour
 {
     private CardUI _cardUI;
