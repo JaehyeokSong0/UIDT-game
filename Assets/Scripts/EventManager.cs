@@ -1,7 +1,5 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
 public enum EventType
@@ -13,7 +11,7 @@ public enum EventType
     JoinRoomFailure, 
     LeftRoomSuccess,
     UpdateLobby,
-    InitInRoom, // Create 혹은 Join 시 RoomStatus 초기화
+    InitInRoom, // Initialize RoomStatus on CreateRoom / JoinRoom
     HostLeftRoom,
     ClientJoinRoom,
     ClientLeftRoom,
@@ -36,20 +34,20 @@ public enum EventType
 
 public class EventManager : MonoBehaviour
 {
-    public static EventManager instance = null;
+    public static EventManager Instance = null;
     private Dictionary<EventType, List<IListener>> Listeners = new Dictionary<EventType, List<IListener>>();
 
     private void Awake()
     {
         Debug.Log("[EventManager] Awake");
-        if(instance == null)
+        if(Instance == null)
         {
-            instance = this;
+            Instance = this;
             DontDestroyOnLoad(gameObject);
         }
         else
         {
-            if(instance != this)
+            if(Instance != this)
                 Destroy(this.gameObject);
         }
     }

@@ -1,53 +1,39 @@
 using Photon.Pun;
 using Photon.Realtime;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class InRoom : MonoBehaviour, IListener
 {
-    public LobbyManager lobbyManager;
-
     private readonly Color ReadyTextColor = new Color32(100, 100, 0, 255);
     private readonly Color NotReadyTextColor = new Color32(200, 200, 200, 255);
 
-    [FormerlySerializedAs("UI_InRoom")]
-    public GameObject InRoomUI;
-    public TMP_Text player1Name;
-    public TMP_Text player2Name;
-    public TMP_Text player2Ready;
-    public Button ReadyButton;
-    [FormerlySerializedAs("ReadyButton_Pressed")]
-    public Button ReadyButtonPressed;
-    public Button StartButton;
-    public Button ExitButton;
+    [SerializeField]
+    private LobbyManager _lobbyManager;
+    [SerializeField]
+    private TMP_Text _player1Name, _player2Name, _player2Ready;
+    [SerializeField]
+    private Button _readyButton, _readyButtonPressed, _startButton, _exitButton;
 
     private void Awake()
     {
-        EventManager.instance.AddListener(EventType.InitInRoom, this);
-        EventManager.instance.AddListener(EventType.HostLeftRoom, this);
-        EventManager.instance.AddListener(EventType.LeftRoomSuccess, this);
-        EventManager.instance.AddListener(EventType.ClientJoinRoom, this);
-        EventManager.instance.AddListener(EventType.ClientLeftRoom, this);
-        EventManager.instance.AddListener(EventType.ClientReady, this);
-        EventManager.instance.AddListener(EventType.ClientNotReady, this);
-        EventManager.instance.AddListener(EventType.EnterCharacterSelectionPhase, this);
+        EventManager.Instance.AddListener(EventType.InitInRoom, this);
+        EventManager.Instance.AddListener(EventType.HostLeftRoom, this);
+        EventManager.Instance.AddListener(EventType.LeftRoomSuccess, this);
+        EventManager.Instance.AddListener(EventType.ClientJoinRoom, this);
+        EventManager.Instance.AddListener(EventType.ClientLeftRoom, this);
+        EventManager.Instance.AddListener(EventType.ClientReady, this);
+        EventManager.Instance.AddListener(EventType.ClientNotReady, this);
+        EventManager.Instance.AddListener(EventType.EnterCharacterSelectionPhase, this);
     }
 
-    // Start is called before the first frame update
     private void Start()
     {
-        InRoomUI = gameObject;
-
-        ReadyButton.onClick.AddListener(ReadyInRoom);
-        ReadyButtonPressed.onClick.AddListener(NotReadyInRoom);
-        StartButton.onClick.AddListener(TryStartGameInRoom);
-        ExitButton.onClick.AddListener(TryExitInRoom);
+        _readyButton.onClick.AddListener(ReadyInRoom);
+        _readyButtonPressed.onClick.AddListener(NotReadyInRoom);
+        _startButton.onClick.AddListener(TryStartGameInRoom);
+        _exitButton.onClick.AddListener(TryExitInRoom);
     }
 
     public void OnEvent(EventType eventType, Component sender, object param = null)
@@ -111,25 +97,25 @@ public class InRoom : MonoBehaviour, IListener
         Debug.Log("[InRoom] SetInRoom() / Current Room Player : " + PhotonNetwork.CurrentRoom.Players.Count);
 
         if (PhotonNetwork.CurrentRoom.Players.Count == 2) // JoinRoom 
-             player2 = PhotonNetwork.LocalPlayer;
+            player2 = PhotonNetwork.LocalPlayer;
 
         bool isHost = (player1.NickName == PhotonNetwork.LocalPlayer.NickName);
 
-        player1Name.text = player1.NickName;
-        player2Ready.color = NotReadyTextColor;
+        _player1Name.text = player1.NickName;
+        _player2Ready.color = NotReadyTextColor;
 
         if (isHost) // CreateRoom의 경우
         {
-            ReadyButton.gameObject.SetActive(false);
-            ReadyButtonPressed.gameObject.SetActive(false);
-            StartButton.gameObject.SetActive(true);
+            _readyButton.gameObject.SetActive(false);
+            _readyButtonPressed.gameObject.SetActive(false);
+            _startButton.gameObject.SetActive(true);
         }
         else // JoinRoom의 경우
         {
-            player2Name.text = player2.NickName;
-            ReadyButton.gameObject.SetActive(true);
-            ReadyButtonPressed.gameObject.SetActive(false);
-            StartButton.gameObject.SetActive(false);
+            _player2Name.text = player2.NickName;
+            _readyButton.gameObject.SetActive(true);
+            _readyButtonPressed.gameObject.SetActive(false);
+            _startButton.gameObject.SetActive(false);
         }
     }
 
@@ -137,75 +123,75 @@ public class InRoom : MonoBehaviour, IListener
     // Host 기준 Client 입장 후 InRoom 갱신 - NetworkManager\OnPlayerEnteredRoom과 연동
     {
         Debug.Log("[InRoom] ClientJoinedRoom()");
-        player2Name.text = newPlayer.NickName;
+        _player2Name.text = newPlayer.NickName;
     }
 
     public void ClientLeftRoom()
     {
         Debug.Log("[InRoom] ClientLeftRoom()");
-        player2Name.text = "";
+        _player2Name.text = "";
     }
 
     public void ReadyInRoom()
     // Player2의 Status를 Ready로 변경
     {
-        EventManager.instance.PostNotification(EventType.ClientReady, this, null);
-        NetworkManager.instance.ReadyInRoom(true);
+        EventManager.Instance.PostNotification(EventType.ClientReady, this, null);
+        NetworkManager.Instance.ReadyInRoom(true);
 
-        ReadyButton.gameObject.SetActive(false);
-        ReadyButtonPressed.gameObject.SetActive(true);
+        _readyButton.gameObject.SetActive(false);
+        _readyButtonPressed.gameObject.SetActive(true);
     }
 
     public void NotReadyInRoom()
     // Player2의 Status를 NotReady로 변경
-    { 
-        EventManager.instance.PostNotification(EventType.ClientNotReady, this, null);
-        NetworkManager.instance.ReadyInRoom(false);
+    {
+        EventManager.Instance.PostNotification(EventType.ClientNotReady, this, null);
+        NetworkManager.Instance.ReadyInRoom(false);
 
-        ReadyButton.gameObject.SetActive(true);
-        ReadyButtonPressed.gameObject.SetActive(false);
+        _readyButton.gameObject.SetActive(true);
+        _readyButtonPressed.gameObject.SetActive(false);
     }
 
     public void SetClientReadyText(Color newColor)
     {
-        player2Ready.color = newColor;
+        _player2Ready.color = newColor;
     }
 
     public void TryStartGameInRoom()
     // Room의 Status를 Gaming으로 변경 + Character Select Scene으로 전환
     {
-        NetworkManager.instance.p1_username = player1Name.text;
-        NetworkManager.instance.p2_username = player2Name.text;
-        NetworkManager.instance.StartGame();
+        NetworkManager.Instance.P1_username = _player1Name.text;
+        NetworkManager.Instance.P2_username = _player2Name.text;
+        NetworkManager.Instance.StartGame();
     }
 
     public void StartGameInRoom()
     {
-        GameManager.instance.LoadSceneByIndex(2); // SelectScene
+        GameManager.Instance.LoadSceneByIndex(2); // SelectScene
     }
 
     public void TryExitInRoom()
     {
-        NetworkManager.instance.LeaveRoom();
+        NetworkManager.Instance.LeaveRoom();
     }
 
     public void ExitInRoomSuccess()
     // InGame UI 해제
     {
-        lobbyManager.ExitRoom();
+        _lobbyManager.ExitRoom();
     }
 
     public void MigrateHost()
     // Host(Player1)이 room에서 나간 경우 UI상에서 Player2의 위치(오른쪽)를 Player1의 위치(왼쪽)으로 이동
     // 서버단에서의 작업은 NetworkManager에서 구현
     {
-        player1Name.text = PhotonNetwork.LocalPlayer.NickName;
-        player2Name.text = "";
+        _player1Name.text = PhotonNetwork.LocalPlayer.NickName;
+        _player2Name.text = "";
 
         SetClientReadyText(NotReadyTextColor);
 
-        ReadyButton.gameObject.SetActive(false);
-        ReadyButtonPressed.gameObject.SetActive(false);
-        StartButton.gameObject.SetActive(true);
+        _readyButton.gameObject.SetActive(false);
+        _readyButtonPressed.gameObject.SetActive(false);
+        _startButton.gameObject.SetActive(true);
     }
 }

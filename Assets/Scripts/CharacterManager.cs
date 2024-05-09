@@ -1,14 +1,24 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class CharacterManager : MonoBehaviour
 {
-    public CharacterType characterType;
-    public CharacterSelection SelectSceneManager;
+    [SerializeField]
+    private CharacterType _characterType;
+    private CharacterSelection _characterSelection;
+
+    private void Start()
+    {
+        if (_characterSelection == null)
+        {
+            _characterSelection = GameObject.FindObjectOfType<CharacterSelection>();
+            if (_characterSelection == null)
+                Debug.LogError("[CharacterManager] Cannot find CharacterSelection");
+        }
+    }
+
     private void OnMouseUp()
     {
-        if(SelectSceneManager.currUI == null)
-            SelectSceneManager.SelectCharacter_UI(characterType);
+        if(_characterSelection.CurrUI == null)
+            _characterSelection.SelectCharacter_UI(_characterType);
     }
 }

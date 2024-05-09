@@ -1,30 +1,22 @@
 using Photon.Realtime;
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class ActivatedRoom : MonoBehaviour, IPointerClickHandler
 {
-    public LobbyManager lobbyManager;
-
+    private LobbyManager _lobbyManager;
+    [SerializeField]
+    private GameObject _roomID, _roomName, _player1, _player2Empty, _player2Full, _waiting, _gaming;
     private RoomInfo _roomInfo;
-    public GameObject roomID;
-    public GameObject roomName;
-    public GameObject player1;
-    public GameObject player2Empty;
-    public GameObject player2Full;
-    public GameObject Waiting;
-    public GameObject Gaming;
 
     // Start is called before the first frame update
     void Start()
     {
-        if (lobbyManager== null)
+        if (_lobbyManager== null)
         {
-            lobbyManager = GameObject.FindObjectOfType<LobbyManager>();
-            if (lobbyManager == null)
+            _lobbyManager = GameObject.FindObjectOfType<LobbyManager>();
+            if (_lobbyManager == null)
                 Debug.LogError("[ActivatedRoom] Cannot find LobbyManager");
         }
     }
@@ -36,20 +28,20 @@ public class ActivatedRoom : MonoBehaviour, IPointerClickHandler
 
     public void SetRoomName(string str)
     {
-        roomName.GetComponent<TMP_Text>().text = str;
+        _roomName.GetComponent<TMP_Text>().text = str;
     }
 
     public void SetPlayer2Status(int playerCount)
     {
         if(playerCount == 1)
         {
-            player2Empty.SetActive(true);
-            player2Full.SetActive(false);
+            _player2Empty.SetActive(true);
+            _player2Full.SetActive(false);
         }
         else if(playerCount == 2)
         {
-            player2Full.SetActive(true);
-            player2Empty.SetActive(false);
+            _player2Full.SetActive(true);
+            _player2Empty.SetActive(false);
         }
         else
         {
@@ -61,20 +53,20 @@ public class ActivatedRoom : MonoBehaviour, IPointerClickHandler
     {
         if(isWaiting == true) // Room is open
         {
-            Waiting.SetActive(true);
-            Gaming.SetActive(false);
+            _waiting.SetActive(true);
+            _gaming.SetActive(false);
         }
         else
         {
-            Gaming.SetActive(true);
-            Waiting.SetActive(false);
+            _gaming.SetActive(true);
+            _waiting.SetActive(false);
         }
     }
 
     public void TryJoinRoom()
     // JoinRoom 요청을 보내 수신한 콜백 이벤트에 따라 LobbyManager에서 작업 수행
     {
-        lobbyManager.TryJoinRoom(_roomInfo.Name);
+        _lobbyManager.TryJoinRoom(_roomInfo.Name);
     }
 
     #region IPointClickHandler Implementation

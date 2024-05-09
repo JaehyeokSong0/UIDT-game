@@ -1,36 +1,35 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class Timebar : MonoBehaviour
 {
-    const float maxTime = 30.0f;
+    private const float MaxTime = 30.0f;
 
-    public Image leftTimeImage;
-    public TMP_Text leftTimeText;
+    [SerializeField]
+    private Image _leftTimeImage;
+    [SerializeField]
+    private TMP_Text _leftTimeText;
+    private float _leftTime;
 
-    private float leftTime;
-
-    void Start()
+    private void Start()
     {
         Init();
     }
 
-    void Update()
+    private void Update()
     {
-        if (leftTime > 0)
+        if (_leftTime > 0)
         {
-            leftTime -= Time.deltaTime;
-            leftTimeText.text = $"{leftTime:N1}";
-            leftTimeImage.fillAmount = leftTime / maxTime;
+            _leftTime -= Time.deltaTime;
+            _leftTimeText.text = $"{_leftTime:N1}";
+            _leftTimeImage.fillAmount = _leftTime / MaxTime;
         }
 
     }
 
-    public void Init()
+    private void Init()
     {
-        leftTime = maxTime;
+        _leftTime = MaxTime;
     }
 }

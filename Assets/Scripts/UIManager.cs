@@ -1,62 +1,52 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.Events;
-using TMPro;
-using UnityEngine.EventSystems;
-
 public class UIManager : MonoBehaviour
 {
-    public static UIManager instance = null;
+    public static UIManager Instance = null;
 
     #region UI objects   
-
-    private GameObject networkLoadingPanel;
-    private GameObject exitPanel;
+    private GameObject _exitPanel, _networkLoadingPanel;
 
     [HideInInspector]
-    public bool isExitPanelActivated;
-    [HideInInspector]
-    public bool isNetworkLoadingPanelActivated;
+    public bool IsExitPanelActivated, IsNetworkLoadingPanelActivated;
 
-    public Button Resolution1920Button;
-    public Button Resolution960Button;
-
+    [SerializeField]
+    private Button _resolution1920Button, _resolution960Button;
     #endregion
 
     private void Awake()
     {
-        if (instance == null)
+        if (Instance == null)
         {
-            instance = this;
+            Instance = this;
             Debug.Log("[UIManager] Awake");
             DontDestroyOnLoad(gameObject);
         }
         else
         {
-            if (instance != this)
+            if (Instance != this)
                 Destroy(this.gameObject);
         }
 
-        Resolution1920Button.onClick.AddListener(() => SetResolution(1920, 1080));
-        Resolution960Button.onClick.AddListener(() => SetResolution(960, 540));
+        _resolution1920Button.onClick.AddListener(() => SetResolution(1920, 1080));
+        _resolution960Button.onClick.AddListener(() => SetResolution(960, 540));
     }
 
     private void Start()
     {
         Debug.Log("[UIManager] Start");
-        isExitPanelActivated = false;
-        isNetworkLoadingPanelActivated = false;
+        IsExitPanelActivated = false;
+        IsNetworkLoadingPanelActivated = false;
 
-        if(networkLoadingPanel == null)
-            networkLoadingPanel = Instantiate(Resources.Load("Prefabs/Panel_Loading")) as GameObject;
 
-        if (exitPanel == null)
+        if (_exitPanel == null)
         {
-            exitPanel = Instantiate(Resources.Load("Prefabs/Panel_Exit")) as GameObject;
-            exitPanel.SetActive(false);
+            _exitPanel = Instantiate(Resources.Load("Prefabs/Panel_Exit")) as GameObject;
+            _exitPanel.SetActive(false);
         }
+
+        if (_networkLoadingPanel == null)
+            _networkLoadingPanel = Instantiate(Resources.Load("Prefabs/Panel_Loading")) as GameObject;
 
         ActivateNetworkLoadingPanel();
     }
@@ -70,33 +60,38 @@ public class UIManager : MonoBehaviour
     #region ActivatePrefabs
     public void ActivateExitPanel()
     {
-        if (exitPanel == null)
-            exitPanel = Instantiate(Resources.Load("Prefabs/Panel_Exit")) as GameObject;
+        if (_exitPanel == null)
+            _exitPanel = Instantiate(Resources.Load("Prefabs/Panel_Exit")) as GameObject;
 
-        exitPanel.GetComponent<ExitPanel>().ActivateExitPanel();
+        _exitPanel.GetComponent<ExitPanel>().ActivateExitPanel();
     }
 
     public void ActivateNetworkLoadingPanel()
     {
-        if (networkLoadingPanel == null)
-            networkLoadingPanel = Instantiate(Resources.Load("Prefabs/Panel_Loading")) as GameObject;
+        if (_networkLoadingPanel == null)
+            _networkLoadingPanel = Instantiate(Resources.Load("Prefabs/Panel_Loading")) as GameObject;
 
-        networkLoadingPanel.GetComponent<NetworkLoadingPanel>().ActivateNetworkLoadingPanel();
+        _networkLoadingPanel.GetComponent<NetworkLoadingPanel>().ActivateNetworkLoadingPanel();
     }
     public void DeactivateNetworkLoadingPanel()
     {
-        if (networkLoadingPanel == null)
-            networkLoadingPanel = Instantiate(Resources.Load("Prefabs/Panel_Loading")) as GameObject;
+        if (_networkLoadingPanel == null)
+            _networkLoadingPanel = Instantiate(Resources.Load("Prefabs/Panel_Loading")) as GameObject;
 
-        networkLoadingPanel.GetComponent<NetworkLoadingPanel>().DeactivateNetworkLoadingPanel();
+        _networkLoadingPanel.GetComponent<NetworkLoadingPanel>().DeactivateNetworkLoadingPanel();
     }
 
     #endregion
 
     #region UI Functions
-    public void SetResolution(int width, int height)
+    private void SetResolution(int width, int height)
     {
         Screen.SetResolution(width, height, false);
+    }
+
+    public void OpenURL(string URL)
+    {
+        Application.OpenURL(URL);
     }
     #endregion
 }

@@ -1,8 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor;
-using UnityEngine.Serialization;
 
 public enum CardType
 {
@@ -20,8 +16,8 @@ public enum MoveDirection // 3*3 grid에서의 index 기준
     Down = 7, 
 }
 
-// [MEMO] 변수명 갱신 시 [FormerlySerializedAs()] 사용할 것
-public class Card : MonoBehaviour
+public class Card : MonoBehaviour 
+// Exceptionally non-compliant with coding standards
 {
     [HideInInspector]
     public string cardName;

@@ -1,5 +1,4 @@
 using Photon.Pun;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -15,9 +14,9 @@ public enum CharacterType
 
 public class GameManager : MonoBehaviour, IPunObservable
 {
-    public static GameManager instance = null;
-    private NetworkManager _networkManager;
-    public PhotonView pView;
+    public static GameManager Instance = null;
+    [SerializeField]
+    private PhotonView _photonView;
 
     #region GameStatus
     [HideInInspector]
@@ -43,24 +42,18 @@ public class GameManager : MonoBehaviour, IPunObservable
 
     private void Awake()
     {
-        if(instance == null)
+        if(Instance == null)
         {
-            instance = this;
+            Instance = this;
             DontDestroyOnLoad(gameObject);
         }
         else
         {
-            if(instance != this)
+            if(Instance != this)
                 Destroy(this.gameObject);
         }
 
-        pView = GetComponent<PhotonView>();
-    }
-
-    // Start is called before the first frame update
-    private void Start()
-    {
-        Debug.Log("[GameManager] Start");
+        _photonView = GetComponent<PhotonView>();
     }
 
     public void InitGameStatus()
@@ -68,6 +61,7 @@ public class GameManager : MonoBehaviour, IPunObservable
         p1_cardQueue.Clear();
         p2_cardQueue.Clear();
     }
+
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
         if(stream.IsWriting)
@@ -108,7 +102,7 @@ public class GameManager : MonoBehaviour, IPunObservable
 
     public void SetEnemyCharacter()
     {
-        enemyCharacter = NetworkManager.instance.GetEnemyCharacter();
+        enemyCharacter = NetworkManager.Instance.GetEnemyCharacter();
         if (currPlayer == 1)
         {
             p1_character = playerCharacter;
@@ -201,7 +195,7 @@ public class GameManager : MonoBehaviour, IPunObservable
             idx++;
         }
 
-        pView.RPC("SetCardRPC", RpcTarget.All, playerNum, _cardNames as object, _characterTypes as object);
+        _photonView.RPC("SetCardRPC", RpcTarget.All, playerNum, _cardNames as object, _characterTypes as object);
     }
 
     [PunRPC]
@@ -214,13 +208,13 @@ public class GameManager : MonoBehaviour, IPunObservable
         {
             for (int i = 0; i < s_cardNames.Length; i++)
                 p1_cardQueue.Enqueue(Resources.Load<Card>(_path + s_characterTypes[i].ToString() + "/" + s_cardNames[i].ToString()));
-            EventManager.instance.PostNotification(EventType.Player1CardSelected, this, null);
+            EventManager.Instance.PostNotification(EventType.Player1CardSelected, this, null);
         }
         else if (playerNum == 2)
         {
             for (int i = 0; i < s_cardNames.Length; i++)
                 p2_cardQueue.Enqueue(Resources.Load<Card>(_path + s_characterTypes[i].ToString() + "/" + s_cardNames[i].ToString()));
-            EventManager.instance.PostNotification(EventType.Player2CardSelected, this, null);
+            EventManager.Instance.PostNotification(EventType.Player2CardSelected, this, null);
         }
         else
             Debug.LogError("[GameManager] SetCardRPC : Invalid playerNum" + playerNum);
@@ -229,8 +223,8 @@ public class GameManager : MonoBehaviour, IPunObservable
 
         if ((p1_cardQueue.Count + p2_cardQueue.Count) == 6)
         {
-            if (NetworkManager.instance.IsMasterClient())
-                NetworkManager.instance.LoadScene(4);
+            if (NetworkManager.Instance.IsMasterClient())
+                NetworkManager.Instance.LoadScene(4);
         }
     }
     #endregion

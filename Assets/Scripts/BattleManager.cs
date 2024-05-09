@@ -1,17 +1,10 @@
 using Photon.Pun;
-using Photon.Realtime;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using UnityEditor;
-using Unity.VisualScripting;
-//using UnityEditor.PackageManager.UI;
-//using UnityEditor.Search;
 using UnityEngine;
-using UnityEngine.TextCore.Text;
-using UnityEngine.UI;
 using UnityEngine.Serialization;
-//using static UnityEditor.PlayerSettings;
+using UnityEngine.UI;
 
 public enum GameResult
 {
@@ -23,17 +16,44 @@ public enum GameResult
 
 public class BattleManager : MonoBehaviour, IListener
 {
+    #region Predefined Variables
+    const int maxHP = 100;
+    const int maxEN = 100;
+    const int minWidth = 1;
+    const int maxWidth = 4;
+    const int minHeight = 1;
+    const int maxHeight = 3;
+
+    Vector3[,] positions = new Vector3[2, 12]
+    {
+        {
+            new Vector3(-25, 1, 102.5f), new Vector3(-25, 1, 52.1f) ,new Vector3(-25, 1, 2.5f ) ,new Vector3(-25, 1,-47.5f ),
+            new Vector3(26, 1,102.5f ),new Vector3(26, 1, 52.1f),new Vector3(26, 1, 2.5f),new Vector3(26, 1, -47.5f),
+            new Vector3(75, 1, 102.5f),new Vector3(75, 1, 52.1f),new Vector3(75, 1, 2.5f),new Vector3(75, 1, -47.5f)
+        } ,
+        {
+            new Vector3(-25, 1, 80.0f), new Vector3(-25, 1, 30.0f) ,new Vector3(-25, 1, -20.0f ) ,new Vector3(-25, 1, -70.0f ),
+            new Vector3(26, 1, 80.0f ),new Vector3(26, 1, 30.0f),new Vector3(26, 1, -20.0f),new Vector3(26, 1, -70.0f),
+            new Vector3(75, 1, 80.0f),new Vector3(75, 1, 30.0f),new Vector3(75, 1, -20.0f),new Vector3(75, 1, -70.0f)
+        }
+    };
+
+    Vector3[] rotations = new Vector3[4] // UP, LEFT, RIGHT, DOWN
+    {
+        new Vector3(0, 90, 0), new Vector3(0, 0, 0), new Vector3(0, 180, 0), new Vector3(0, -90, 0)
+    };
+    #endregion
     public class Player
     {
-        #region Variable
+    #region Variable
         CharacterType character;
         int hp;
         int en;
         int[] pos = new int[2];
         Queue<Card> cards;
         GameObject characterGO; // Character GameObject
-        #endregion
-        #region Property
+    #endregion
+    #region Property
         public CharacterType Character
         {
             get { return character; }
@@ -69,7 +89,7 @@ public class BattleManager : MonoBehaviour, IListener
             get { return characterGO; }
             set { characterGO = value; }
         }
-        #endregion
+    #endregion
         public Player(CharacterType character, int hp, int en, int[] pos, Queue<Card> cards)
         {
             this.character = character;
@@ -80,87 +100,62 @@ public class BattleManager : MonoBehaviour, IListener
         }
 
     }
-    Vector3[,] positions = new Vector3[2, 12]
-    {
-        {
-            new Vector3(-25, 1, 102.5f), new Vector3(-25, 1, 52.1f) ,new Vector3(-25, 1, 2.5f ) ,new Vector3(-25, 1,-47.5f ),
-            new Vector3(26, 1,102.5f ),new Vector3(26, 1, 52.1f),new Vector3(26, 1, 2.5f),new Vector3(26, 1, -47.5f),
-            new Vector3(75, 1, 102.5f),new Vector3(75, 1, 52.1f),new Vector3(75, 1, 2.5f),new Vector3(75, 1, -47.5f)
-        } ,
-        {
-            new Vector3(-25, 1, 80.0f), new Vector3(-25, 1, 30.0f) ,new Vector3(-25, 1, -20.0f ) ,new Vector3(-25, 1, -70.0f ),
-            new Vector3(26, 1, 80.0f ),new Vector3(26, 1, 30.0f),new Vector3(26, 1, -20.0f),new Vector3(26, 1, -70.0f),
-            new Vector3(75, 1, 80.0f),new Vector3(75, 1, 30.0f),new Vector3(75, 1, -20.0f),new Vector3(75, 1, -70.0f)
-        }
-    };
-
-    Vector3[] rotations = new Vector3[4] // UP, LEFT, RIGHT, DOWN
-    {
-        new Vector3(0, 90, 0), new Vector3(0, 0, 0), new Vector3(0, 180, 0), new Vector3(0, -90, 0)
-    };
-
-
-    const int maxHP = 100;
-    const int maxEN = 100;
-    const int minWidth = 1;
-    const int maxWidth = 4;
-    const int minHeight = 1;
-    const int maxHeight = 3;
 
     Player[] player = new Player[2];
 
-    #region UI
+    #region UI GameObjects
     [Header("Player1 UI")]
-    public TMP_Text p1_username;
-    public TMP_Text p1_character;
-    public Image p1_HP_img;
-    public TMP_Text p1_HP_text;
-    public Image p1_EN_img;
-    public TMP_Text p1_EN_text;
-    public CardUI p1_card;
-    [FormerlySerializedAs("scene_trasition_button")]
-    public Button EnterCardSelectionPhaseButton;
-    [FormerlySerializedAs("exit_game_button")]
-    public Button ExitGameButton;
+    [SerializeField]
+    private CardUI _p1_cardUI;
+    [SerializeField]
+    private TMP_Text _p1_username, _p1_character, _p1_HP_text, _p1_EN_text;
+    [SerializeField]
+    private Image _p1_HP_img, _p1_EN_img;
 
     [Header("Player2 UI")]
-    public TMP_Text p2_username;
-    public TMP_Text p2_character;
-    public Image p2_HP_img;
-    public TMP_Text p2_HP_text;
-    public Image p2_EN_img;
-    public TMP_Text p2_EN_text;
-    public CardUI p2_card;
+    [SerializeField]
+    private CardUI _p2_cardUI;
+    [SerializeField]
+    private TMP_Text _p2_username, _p2_character, _p2_HP_text, _p2_EN_text;
+    [SerializeField]
+    private Image _p2_HP_img, _p2_EN_img;
 
-    public ScrollRect logBox;
-    public GameObject[] rangePainted = new GameObject[12];
+    [Header("ETC")]
+    [SerializeField]
+    [FormerlySerializedAs("logBox")]
+    private ScrollRect _logBox;
+    [SerializeField]
+    private Button _enterCardSelectionPhaseButton, _exitGameButton;
+    [SerializeField]
+    [FormerlySerializedAs("rangePainted")]
+    private GameObject[] _rangePainted = new GameObject[12];
     #endregion
 
     private void Awake()
     {
-        EnterCardSelectionPhaseButton.onClick.AddListener(EnterCardSelectionPhase);
-        ExitGameButton.onClick.AddListener(TryExitGame);
+        _enterCardSelectionPhaseButton.onClick.AddListener(EnterCardSelectionPhase);
+        _exitGameButton.onClick.AddListener(TryExitGame);
 
-        EventManager.instance.AddListener(EventType.ExitGame, this);
-        EventManager.instance.AddListener(EventType.LeftRoomSuccess, this);
+        EventManager.Instance.AddListener(EventType.ExitGame, this);
+        EventManager.Instance.AddListener(EventType.LeftRoomSuccess, this);
     }
 
     private void Start()
     {
         Debug.Log("[BattleManager] Start");
-        EnterCardSelectionPhaseButton.gameObject.SetActive(false);
-        ExitGameButton.gameObject.SetActive(false);
+        _enterCardSelectionPhaseButton.gameObject.SetActive(false);
+        _exitGameButton.gameObject.SetActive(false);
 
         // Init player status
-        player[0] = new Player(GameManager.instance.p1_character, GameManager.instance.p1_HP, GameManager.instance.p1_EN, GameManager.instance.p1_pos, GameManager.instance.p1_cardQueue);
-        player[1] = new Player(GameManager.instance.p2_character, GameManager.instance.p2_HP, GameManager.instance.p2_EN, GameManager.instance.p2_pos, GameManager.instance.p2_cardQueue);
+        player[0] = new Player(GameManager.Instance.p1_character, GameManager.Instance.p1_HP, GameManager.Instance.p1_EN, GameManager.Instance.p1_pos, GameManager.Instance.p1_cardQueue);
+        player[1] = new Player(GameManager.Instance.p2_character, GameManager.Instance.p2_HP, GameManager.Instance.p2_EN, GameManager.Instance.p2_pos, GameManager.Instance.p2_cardQueue);
         for (int i = 0; i < 2; i++)
             player[i].CharacterGO = InstantiateCharacter(i, player[i].Character);
 
-        p1_username.text = NetworkManager.instance.p1_username;
-        p1_character.text = GameManager.instance.p1_character.ToString();
-        p2_username.text = NetworkManager.instance.p2_username;
-        p2_character.text = GameManager.instance.p2_character.ToString();
+        _p1_username.text = NetworkManager.Instance.P1_username;
+        _p1_character.text = GameManager.Instance.p1_character.ToString();
+        _p2_username.text = NetworkManager.Instance.P2_username;
+        _p2_character.text = GameManager.Instance.p2_character.ToString();
         
         SetUserUI();
 
@@ -184,16 +179,16 @@ public class BattleManager : MonoBehaviour, IListener
         }
     }
     private void SetUserUI()
-    { 
-        p1_HP_img.fillAmount = (float)player[0].Hp / 100.0f;
-        p1_HP_text.text = ((float)player[0].Hp).ToString();
-        p1_EN_img.fillAmount = (float)player[0].En / 100.0f;
-        p1_EN_text.text = ((float)player[0].En).ToString();
+    {
+        _p1_HP_img.fillAmount = (float)player[0].Hp / 100.0f;
+        _p1_HP_text.text = ((float)player[0].Hp).ToString();
+        _p1_EN_img.fillAmount = (float)player[0].En / 100.0f;
+        _p1_EN_text.text = ((float)player[0].En).ToString();
 
-        p2_HP_img.fillAmount = (float)player[1].Hp / 100.0f;
-        p2_HP_text.text = ((float)player[1].Hp).ToString();
-        p2_EN_img.fillAmount = (float)player[1].En / 100.0f;
-        p2_EN_text.text = ((float)player[1].En).ToString();
+        _p2_HP_img.fillAmount = (float)player[1].Hp / 100.0f;
+        _p2_HP_text.text = ((float)player[1].Hp).ToString();
+        _p2_EN_img.fillAmount = (float)player[1].En / 100.0f;
+        _p2_EN_text.text = ((float)player[1].En).ToString();
 
         SetGameStatus();
     }
@@ -202,13 +197,13 @@ public class BattleManager : MonoBehaviour, IListener
     {
         Debug.Log("[BattleManager] SetGameStatus");
 
-        GameManager.instance.p1_HP = player[0].Hp;
-        GameManager.instance.p1_EN = player[0].En;
-        GameManager.instance.p1_pos = player[0].Pos;
+        GameManager.Instance.p1_HP = player[0].Hp;
+        GameManager.Instance.p1_EN = player[0].En;
+        GameManager.Instance.p1_pos = player[0].Pos;
 
-        GameManager.instance.p2_HP = player[1].Hp;
-        GameManager.instance.p2_EN = player[1].En;
-        GameManager.instance.p2_pos = player[1].Pos;
+        GameManager.Instance.p2_HP = player[1].Hp;
+        GameManager.Instance.p2_EN = player[1].En;
+        GameManager.Instance.p2_pos = player[1].Pos;
     }
 
     private GameObject InstantiateCharacter(int playerIdx, CharacterType character)
@@ -223,13 +218,13 @@ public class BattleManager : MonoBehaviour, IListener
         string commonPath = "Prefabs/Characters/BattleScene/";
         GameObject _characterGO = Resources.Load(commonPath + character.ToString()) as GameObject;
         
-        int _startPos = (playerIdx == 0) ? (GameManager.instance.p1_pos[0] - 1) + (GameManager.instance.p1_pos[1] - 1) * 4 : (GameManager.instance.p2_pos[0] - 1) + (GameManager.instance.p2_pos[1] - 1) * 4;
+        int _startPos = (playerIdx == 0) ? (GameManager.Instance.p1_pos[0] - 1) + (GameManager.Instance.p1_pos[1] - 1) * 4 : (GameManager.Instance.p2_pos[0] - 1) + (GameManager.Instance.p2_pos[1] - 1) * 4;
 
         int _startRot;
         if (playerIdx == 0)
-            _startRot = (int)(GetDirection(GameManager.instance.p1_pos, GameManager.instance.p2_pos, playerIdx)) / 2; // index : 0,1,2,3 -> UP, LEFT, RIGHT, DOWN
+            _startRot = (int)(GetDirection(GameManager.Instance.p1_pos, GameManager.Instance.p2_pos, playerIdx)) / 2; // index : 0,1,2,3 -> UP, LEFT, RIGHT, DOWN
         else if (playerIdx == 1)
-            _startRot = (int)(GetDirection(GameManager.instance.p2_pos, GameManager.instance.p1_pos, playerIdx)) / 2;
+            _startRot = (int)(GetDirection(GameManager.Instance.p2_pos, GameManager.Instance.p1_pos, playerIdx)) / 2;
         else
         {
             _startRot = 0;
@@ -245,7 +240,7 @@ public class BattleManager : MonoBehaviour, IListener
         while(player[0].Cards.Count > 0)
             yield return StartCoroutine(TakeTurn(player[0].Cards.Dequeue(), player[1].Cards.Dequeue()));
 
-        EnterCardSelectionPhaseButton.gameObject.SetActive(true);
+        _enterCardSelectionPhaseButton.gameObject.SetActive(true);
     }
 
     void EnterCardSelectionPhase()
@@ -253,13 +248,13 @@ public class BattleManager : MonoBehaviour, IListener
         Debug.Log("[BattleManager] EnterCardSelectionPhase");
         SetGameStatus();
 
-        if (NetworkManager.instance.IsMasterClient())
-            NetworkManager.instance.LoadScene(3);
+        if (NetworkManager.Instance.IsMasterClient())
+            NetworkManager.Instance.LoadScene(3);
     }
 
     void TryExitGame()
     {
-        NetworkManager.instance.ExitGame();
+        NetworkManager.Instance.ExitGame();
     }
 
     void ExitGameSuccess()
@@ -270,8 +265,8 @@ public class BattleManager : MonoBehaviour, IListener
     void LeaveRoomSuccess()
     {
         //NetworkManager.instance.LoadScene(1);
-        GameManager.instance.LoadSceneByIndex(1);
-        GameManager.instance.InitGameStatus();
+        GameManager.Instance.LoadSceneByIndex(1);
+        GameManager.Instance.InitGameStatus();
     }
 
 
@@ -311,7 +306,7 @@ public class BattleManager : MonoBehaviour, IListener
             Debug.Log("GAME END");
             InsertLog(CheckTurnResult().ToString()); // 게임결과 띄우고 나가기 버튼 활성화 -> 클릭 : 로비로 이동
             StopAllCoroutines();
-            ExitGameButton.gameObject.SetActive(true);
+            _exitGameButton.gameObject.SetActive(true);
         }
     }
 
@@ -325,17 +320,17 @@ public class BattleManager : MonoBehaviour, IListener
 
         if (playerIdx == 0)
         {
-            p1_card.gameObject.SetActive(true);
-            p1_card.SetCard(playerCard);
+            _p1_cardUI.gameObject.SetActive(true);
+            _p1_cardUI.SetCard(playerCard);
         }
         else if(playerIdx == 1)
         {
-            p2_card.gameObject.SetActive(true);
-            p2_card.SetCard(playerCard);
+            _p2_cardUI.gameObject.SetActive(true);
+            _p2_cardUI.SetCard(playerCard);
         }
 
         player[playerIdx].En -= playerCard.energy;
-        string username = (playerIdx == 0) ? NetworkManager.instance.p1_username : NetworkManager.instance.p2_username;
+        string username = (playerIdx == 0) ? NetworkManager.Instance.P1_username : NetworkManager.Instance.P2_username;
 
         switch (playerCard.cardType)
         {
@@ -386,7 +381,7 @@ public class BattleManager : MonoBehaviour, IListener
         int posX = player[playerIdx].Pos[0];
         int posY = player[playerIdx].Pos[1];
         int moveVal = card.value;
-        string username = (playerIdx == 0) ? NetworkManager.instance.p1_username : NetworkManager.instance.p2_username;
+        string username = (playerIdx == 0) ? NetworkManager.Instance.P1_username : NetworkManager.Instance.P2_username;
         Debug.Log("[BattleManager] MovePos : " + posX + " , " + posY);
 
         switch (card.moveDir)
@@ -489,8 +484,8 @@ public class BattleManager : MonoBehaviour, IListener
         StartCoroutine(player[attackedPlayerIdx].CharacterGO.GetComponent<CharacterAnimator>().GetHit());
         player[attackedPlayerIdx].Hp = (player[attackedPlayerIdx].Hp - damage >= 0) ? (player[attackedPlayerIdx].Hp - damage) : 0;
 
-        string username = (attackedPlayerIdx == 0) ? NetworkManager.instance.p1_username : NetworkManager.instance.p2_username;
-        string enemyname = (attackedPlayerIdx == 0) ? NetworkManager.instance.p2_username : NetworkManager.instance.p1_username;
+        string username = (attackedPlayerIdx == 0) ? NetworkManager.Instance.P1_username : NetworkManager.Instance.P2_username;
+        string enemyname = (attackedPlayerIdx == 0) ? NetworkManager.Instance.P2_username : NetworkManager.Instance.P1_username;
         InsertLog("[ATTACK] " + enemyname + " attacked " + username + " / (HP) " + _hp.ToString() + " -> " + player[attackedPlayerIdx].Hp.ToString());
     }
 
@@ -499,9 +494,9 @@ public class BattleManager : MonoBehaviour, IListener
         if((idx < 0) || (idx > 11))
             Debug.LogError("[BattleManager] MarkRange / Wrong index " + idx);
 
-        rangePainted[idx].SetActive(true);
+        _rangePainted[idx].SetActive(true);
         yield return new WaitForSeconds(1.5f);
-        rangePainted[idx].SetActive(false);
+        _rangePainted[idx].SetActive(false);
     }
 
     GameResult CheckTurnResult()
@@ -510,8 +505,8 @@ public class BattleManager : MonoBehaviour, IListener
         int p1_hp = player[0].Hp;
         int p2_hp = player[1].Hp; ;
 
-        p1_card.gameObject.SetActive(false);
-        p2_card.gameObject.SetActive(false);
+        _p1_cardUI.gameObject.SetActive(false);
+        _p2_cardUI.gameObject.SetActive(false);
 
         if(p1_hp <= 0)
             StartCoroutine(player[0].CharacterGO.GetComponent<CharacterAnimator>().Die());
@@ -555,7 +550,7 @@ public class BattleManager : MonoBehaviour, IListener
         GameObject log = Instantiate(Resources.Load("Prefabs/Text_Log") as GameObject);
         TMP_Text logText = log.GetComponent<TMP_Text>();
         
-        logText.transform.SetParent(logBox.content.transform);
+        logText.transform.SetParent(_logBox.content.transform);
         logText.text = text;
 
         const float textHeight = 15.0f;
@@ -564,6 +559,6 @@ public class BattleManager : MonoBehaviour, IListener
 
     void MoveScroll(float height)
     {
-        logBox.content.anchoredPosition += new Vector2(0, height);
+        _logBox.content.anchoredPosition += new Vector2(0, height);
     }
 }

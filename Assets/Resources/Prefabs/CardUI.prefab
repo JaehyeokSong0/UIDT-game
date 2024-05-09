@@ -1744,14 +1744,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8c3a56b0ec443ac449675483d3d6cc9e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cardInfo: {fileID: 0}
-  characterColor:
+  CardInfo: {fileID: 0}
+  _characterColor:
   - {fileID: 7713580270286678861}
   - {fileID: 7495252471364586277}
   - {fileID: 573735299062979355}
   - {fileID: 965404197854586458}
   - {fileID: 3268150778465770265}
-  rangeCell:
+  _rangeCell:
   - {fileID: 4071070093713004552}
   - {fileID: 4419807441014309812}
   - {fileID: 1954931787515860367}
@@ -1761,10 +1761,10 @@ MonoBehaviour:
   - {fileID: 694571583186463956}
   - {fileID: 9148060346050069498}
   - {fileID: 4755138492040616369}
-  cardName: {fileID: 3409162474123966001}
-  description: {fileID: 5181062084918727011}
-  value: {fileID: 1945693889351746137}
-  cost: {fileID: 8658092339395766844}
+  CardName: {fileID: 3409162474123966001}
+  Description: {fileID: 5181062084918727011}
+  Value: {fileID: 1945693889351746137}
+  Cost: {fileID: 8658092339395766844}
 --- !u!1 &8250802072200233604
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,12 +1,12 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class ExitPanel : MonoBehaviour
 {
-    public Button exitButton;
-    public Button returnButton;
+    [SerializeField]
+    private Button _exitButton;
+    [SerializeField]
+    private Button _returnButton;
     private void Start()
     {
         DontDestroyOnLoad(gameObject);
@@ -14,19 +14,19 @@ public class ExitPanel : MonoBehaviour
 
     public void ActivateExitPanel()
     {
-        if (UIManager.instance.isExitPanelActivated == false)
+        if (UIManager.Instance.IsExitPanelActivated == false)
         {
             gameObject.SetActive(true);
-            UIManager.instance.isExitPanelActivated = true;
+            UIManager.Instance.IsExitPanelActivated = true;
         }
     }
 
     public void DeactivateExitPanel()
     {
-        if (UIManager.instance.isExitPanelActivated == true)
+        if (UIManager.Instance.IsExitPanelActivated == true)
         {
             gameObject.SetActive(false);
-            UIManager.instance.isExitPanelActivated = false;
+            UIManager.Instance.IsExitPanelActivated = false;
         }
     }
 }

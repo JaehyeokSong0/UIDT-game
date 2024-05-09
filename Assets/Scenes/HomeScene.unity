@@ -1101,7 +1101,6 @@ GameObject:
   - component: {fileID: 782767138}
   - component: {fileID: 782767137}
   - component: {fileID: 782767136}
-  - component: {fileID: 782767135}
   m_Layer: 5
   m_Name: GithubButton
   m_TagString: Untagged
@@ -1129,18 +1128,6 @@ RectTransform:
   m_AnchoredPosition: {x: 949.5946, y: -193.50296}
   m_SizeDelta: {x: 40, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &782767135
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 782767133}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: db59edad1994d4b4681a66e65e80bd8c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &782767136
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1185,8 +1172,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 782767135}
-        m_TargetAssemblyTypeName: URLManager, Assembly-CSharp
+      - m_Target: {fileID: 1319253414}
+        m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
         m_MethodName: OpenURL
         m_Mode: 5
         m_Arguments:
@@ -1194,7 +1181,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: https://github.com/JaehyeokSong0/Project-UIDT
+          m_StringArgument: https://github.com/JaehyeokSong0/UIDT-game
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!114 &782767137
@@ -2040,8 +2027,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e822affa835221b4aa523f5d0fe33b88, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  warningMessage: {fileID: 860774596}
-  nicknameInputField: {fileID: 1831908776}
+  _warningMessage: {fileID: 860774596}
+  _nicknameInputField: {fileID: 1831908776}
 --- !u!114 &1319253414 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1585573334458456086, guid: 132d56cc3a2d05c4080996311e058a22, type: 3}
@@ -3143,7 +3130,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Project UIDT
+  m_text: UIDT-game
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: fd2d7fddadf4a784893447137cbc04b3, type: 2}
   m_sharedMaterial: {fileID: 2136283670404252073, guid: fd2d7fddadf4a784893447137cbc04b3, type: 2}
@@ -4203,6 +4190,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 1585573334458456086, guid: 132d56cc3a2d05c4080996311e058a22, type: 3}
+      propertyPath: Resolution960Button
+      value: 
+      objectReference: {fileID: 4791868263859861071}
+    - target: {fileID: 1585573334458456086, guid: 132d56cc3a2d05c4080996311e058a22, type: 3}
       propertyPath: btn_resolution_1920
       value: 
       objectReference: {fileID: 150812809576652253}
@@ -4211,9 +4202,21 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 4846346615300667676, guid: eb76fc216270f974e8518eae335b0866, type: 3}
     - target: {fileID: 1585573334458456086, guid: 132d56cc3a2d05c4080996311e058a22, type: 3}
+      propertyPath: Resolution1920Button
+      value: 
+      objectReference: {fileID: 150812809576652253}
+    - target: {fileID: 1585573334458456086, guid: 132d56cc3a2d05c4080996311e058a22, type: 3}
+      propertyPath: _resolution960Button
+      value: 
+      objectReference: {fileID: 4791868263859861071}
+    - target: {fileID: 1585573334458456086, guid: 132d56cc3a2d05c4080996311e058a22, type: 3}
       propertyPath: b_exitPanelActivated
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1585573334458456086, guid: 132d56cc3a2d05c4080996311e058a22, type: 3}
+      propertyPath: _resolution1920Button
+      value: 
+      objectReference: {fileID: 150812809576652253}
     - target: {fileID: 3822816409325439201, guid: 132d56cc3a2d05c4080996311e058a22, type: 3}
       propertyPath: m_RootOrder
       value: 5

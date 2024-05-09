@@ -1,63 +1,55 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
-using UnityEngine.TextCore.Text;
-using UnityEngine.UI;
-using UnityEngine.UIElements;
-
-// For ambiguous reference
 using Button = UnityEngine.UI.Button;
 
 public class CharacterSelection : MonoBehaviour, IListener
 {
-    public Camera mainCam;
-    // public Camera uiCam;
-    public Button deselectCharBtn;
-    public Button selectCharBtn;
+    private readonly Vector3 DefaultPos = new Vector3(23.8f, 13.03f, 6.94f);
+    private readonly Quaternion DefaultRot = Quaternion.Euler(48.43f, -95.82f, -0.48f);
+    private readonly Vector3 BerserkerPos = new Vector3(23.8f, 6.9f, 7.34f);
+    private readonly Quaternion BerserkerRot = Quaternion.Euler(26.27f, -30.0f, 1.96f);
+    private readonly Vector3 MagePos = new Vector3(11.9f, 6.5f, -2.24f);
+    private readonly Quaternion MageRot = Quaternion.Euler(27.68f, -107.3f, -0.54f);
+    private readonly Vector3 RoguePos = new Vector3(22.27f, 5.35f, 4.46f);
+    private readonly Quaternion RogueRot = Quaternion.Euler(18.5f, -93.7f, 2.47f);
+    private readonly Vector3 WarriorPos = new Vector3(16.0f, 6.6f, 10.0f);
+    private readonly Quaternion WarriorRot = Quaternion.Euler(27.7f, -94.0f, 1.8f);
+
+    [SerializeField]
+    private Camera _mainCam;
+
+    [SerializeField]
+    private Button _deselectCharBtn, _selectCharBtn;
 
     [Header("Characters")]
-    private readonly Vector3 defaultPos = new Vector3(23.8f, 13.03f, 6.94f);
-    private readonly Quaternion defaultRot = Quaternion.Euler(48.43f, -95.82f, -0.48f);
-    private readonly Vector3 berserkerPos = new Vector3(23.8f, 6.9f, 7.34f);
-    private readonly Quaternion berserkerRot = Quaternion.Euler(26.27f, -30.0f, 1.96f);
-    private readonly Vector3 magePos = new Vector3(11.9f, 6.5f, -2.24f);
-    private readonly Quaternion mageRot = Quaternion.Euler(27.68f, -107.3f, -0.54f);
-    private readonly Vector3 roguePos = new Vector3(22.27f, 5.35f, 4.46f);
-    private readonly Quaternion rogueRot = Quaternion.Euler(18.5f, -93.7f, 2.47f);
-    private readonly Vector3 warriorPos = new Vector3(16.0f, 6.6f, 10.0f);
-    private readonly Quaternion warriorRot = Quaternion.Euler(27.7f, -94.0f, 1.8f);
-
-    [Header("Characters")]
-    public GameObject berserker;
-    public GameObject mage;
-    public GameObject rogue;
-    public GameObject warrior;
+    [SerializeField]
+    private GameObject _berserker;
+    [SerializeField] 
+    private GameObject _mage, _rogue, _warrior;
 
     [Header("Character Selection UI")]
-    public GameObject berserkerUI;
-    public GameObject mageUI;
-    public GameObject rogueUI;
-    public GameObject warriorUI;
-
+    [SerializeField]
+    private GameObject _berserkerUI;
+    [SerializeField]
+    private GameObject _mageUI, _rogueUI, _warriorUI;
     [HideInInspector]
-    public GameObject currUI;
-    private bool isReady;
+    public GameObject CurrUI;
+
+    private bool _isReady;
 
     private void Awake()
     {
-        selectCharBtn.onClick.AddListener(SelectCharacter);
-        deselectCharBtn.onClick.AddListener(DeselectCharacter);
+        _selectCharBtn.onClick.AddListener(SelectCharacter);
+        _deselectCharBtn.onClick.AddListener(DeselectCharacter);
 
-        EventManager.instance.AddListener(EventType.EnterCardSelectionPhase, this);
+        EventManager.Instance.AddListener(EventType.EnterCardSelectionPhase, this);
     }
 
     private void Start()
     {
-        mainCam.transform.position = defaultPos;
-        mainCam.transform.rotation = defaultRot;
+        _mainCam.transform.position = DefaultPos;
+        _mainCam.transform.rotation = DefaultRot;
 
-        isReady = false;
+        _isReady = false;
     }
 
     public void OnEvent(EventType eventType, Component sender, object param = null)
@@ -79,117 +71,117 @@ public class CharacterSelection : MonoBehaviour, IListener
         switch (character)
         {
             case CharacterType.Berserker:
-                MoveCamera(berserkerPos, berserkerRot);
+                MoveCamera(BerserkerPos, BerserkerRot);
                 break;
             case CharacterType.Mage:
-                MoveCamera(magePos, mageRot);
+                MoveCamera(MagePos, MageRot);
                 break;
             case CharacterType.Rogue:
-                MoveCamera(roguePos, rogueRot);
+                MoveCamera(RoguePos, RogueRot);
                 break;
             case CharacterType.Warrior:
-                MoveCamera(warriorPos, warriorRot);
+                MoveCamera(WarriorPos, WarriorRot);
                 break;
         }
 
         ShowSelectUI(character);
     }
 
-    void SelectCharacter() // GameScene 전환
+    private void SelectCharacter() // GameScene 전환
     {
-        if (isReady == false)
-            isReady = true;
+        if (_isReady == false)
+            _isReady = true;
         else
             return;
 
-        if (currUI == null)
+        if (CurrUI == null)
         {
             Debug.LogError("[CharacterSelection] SelectCharacter : Cannot find selected character");
             return;
         }
 
         CharacterType currCharacter;
-        if (currUI == berserkerUI)
+        if (CurrUI == _berserkerUI)
             currCharacter = CharacterType.Berserker;
-        else if (currUI == mageUI)
+        else if (CurrUI == _mageUI)
             currCharacter = CharacterType.Mage;
-        else if (currUI == rogueUI)
+        else if (CurrUI == _rogueUI)
             currCharacter = CharacterType.Rogue;
-        else if (currUI = warriorUI)
+        else if (CurrUI = _warriorUI)
             currCharacter = CharacterType.Warrior;
         else
         {
             Debug.LogError("[CharacterSelection] SelectCharacter : Unexpected Error");
             return;
         }
-        GameManager.instance.SetCharacter(currCharacter);
-        NetworkManager.instance.CharacterSelected();
+        GameManager.Instance.SetCharacter(currCharacter);
+        NetworkManager.Instance.CharacterSelected();
     }
 
-    void DeselectCharacter()
+    private void DeselectCharacter()
     {
         Debug.Log("[CharacterSelection] DeselectCharacter");
 
-        MoveCamera(defaultPos, defaultRot);
+        MoveCamera(DefaultPos, DefaultRot);
         HideSelectUI();
     }
 
-    void EnterCardSelectionPhase() // 게임 환경설정 및 씬 전환
+    private void EnterCardSelectionPhase() // 게임 환경설정 및 씬 전환
     {
         Debug.Log("[CharacterSelection] EnterCardSelectionPhase");
 
         int[] p1_pos = { 1, 2 };
         int[] p2_pos = { 4, 2 };
-        GameManager.instance.SetPlayerStatus(1, 100, 100, p1_pos);
-        GameManager.instance.SetPlayerStatus(2, 100, 100, p2_pos);
-        GameManager.instance.SetReadyStatus(1, false);
-        GameManager.instance.SetReadyStatus(2, false);
-        GameManager.instance.currPlayer = (NetworkManager.instance.IsMasterClient()) ? 1 : 2;
-        GameManager.instance.SetEnemyCharacter();
+        GameManager.Instance.SetPlayerStatus(1, 100, 100, p1_pos);
+        GameManager.Instance.SetPlayerStatus(2, 100, 100, p2_pos);
+        GameManager.Instance.SetReadyStatus(1, false);
+        GameManager.Instance.SetReadyStatus(2, false);
+        GameManager.Instance.currPlayer = (NetworkManager.Instance.IsMasterClient()) ? 1 : 2;
+        GameManager.Instance.SetEnemyCharacter();
 
-        GameManager.instance.LoadSceneByIndex(3);
+        GameManager.Instance.LoadSceneByIndex(3);
     }
 
-    void MoveCamera(Vector3 pos, Quaternion rot)
+    private void MoveCamera(Vector3 pos, Quaternion rot)
     {
         Debug.Log("[CharacterSelection] MoveCamera");
 
-        StartCoroutine(mainCam.GetComponent<CameraManager>().LerpCamera(pos, rot));
+        StartCoroutine(_mainCam.GetComponent<CameraManager>().LerpCamera(pos, rot));
     }
 
-    void ShowSelectUI(CharacterType character)
+    private void ShowSelectUI(CharacterType character)
     {
-        selectCharBtn.gameObject.SetActive(true);
-        deselectCharBtn.gameObject.SetActive(true);
+        _selectCharBtn.gameObject.SetActive(true);
+        _deselectCharBtn.gameObject.SetActive(true);
         switch (character)
         {
             case CharacterType.Berserker:
-                berserkerUI.gameObject.SetActive(true);
-                currUI = berserkerUI;
+                _berserkerUI.gameObject.SetActive(true);
+                CurrUI = _berserkerUI;
                 break;
             case CharacterType.Mage:
-                mageUI.gameObject.SetActive(true);
-                currUI = mageUI;
+                _mageUI.gameObject.SetActive(true);
+                CurrUI = _mageUI;
                 break;
             case CharacterType.Rogue:
-                rogueUI.gameObject.SetActive(true);
-                currUI = rogueUI;
+                _rogueUI.gameObject.SetActive(true);
+                CurrUI = _rogueUI;
                 break;
             case CharacterType.Warrior:
-                warriorUI.gameObject.SetActive(true);
-                currUI = warriorUI;
+                _warriorUI.gameObject.SetActive(true);
+                CurrUI = _warriorUI;
                 break;
         }
     }
 
-    void HideSelectUI()
+    private void HideSelectUI()
     {
         Debug.Log("[CharacterSelection] HideSelectUI");
 
-        selectCharBtn.gameObject.SetActive(false);
-        deselectCharBtn.gameObject.SetActive(false);
-        currUI.gameObject.SetActive(false);
+        _selectCharBtn.gameObject.SetActive(false);
+        _deselectCharBtn.gameObject.SetActive(false);
+        CurrUI.gameObject.SetActive(false);
 
-        currUI = null;
+        CurrUI = null;
     }
 }
