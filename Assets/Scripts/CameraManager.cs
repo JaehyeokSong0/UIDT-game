@@ -5,6 +5,7 @@ public class CameraManager : MonoBehaviour
 {
     [SerializeField]
     private Camera _camera;
+    static bool _isMoving = false;
 
     private void Start()
     {
@@ -15,13 +16,23 @@ public class CameraManager : MonoBehaviour
 
     public IEnumerator LerpCamera(Vector3 targetPos, Quaternion targetRot)
     {
+        if (_isMoving)
+            yield break;
+
         Debug.Log("[CameraManager] LerpCamera");
 
-        for (float time = 0f; time <= 1f; time += Time.deltaTime)
+        float time = 0f;
+        float lerpSpeed = 0.3f;
+
+        _isMoving = true;
+        while(Vector3.Distance(_camera.transform.position, targetPos) > 0.05f)
         { 
-            _camera.transform.position = Vector3.Lerp(_camera.transform.position, targetPos, time);
-            _camera.transform.rotation = Quaternion.Lerp(_camera.transform.rotation, targetRot, time);
+            _camera.transform.position = Vector3.Lerp(_camera.transform.position, targetPos, time * lerpSpeed);
+            _camera.transform.rotation = Quaternion.Lerp(_camera.transform.rotation, targetRot, time * lerpSpeed);
+            time += Time.deltaTime;
+
             yield return null;
         }
+        _isMoving = false;
     } 
 }
